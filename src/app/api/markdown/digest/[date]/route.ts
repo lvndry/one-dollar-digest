@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { authenticateApiKeyFromRequest } from "@/lib/api-key";
 import { canAccessDigestDate } from "@/lib/access";
 import { serializeArchivePaywallMarkdown } from "@/lib/article-markdown";
 import { digestTodayIso, getCachedArticlesForDigestDate } from "@/lib/digest-day";
@@ -20,7 +21,7 @@ function resolveDigestDateParam(date: string): string | null {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ date: string }> },
 ) {
   const { date: dateParam } = await params;
@@ -31,9 +32,10 @@ export async function GET(
   }
 
   const session = await auth();
+  const apiKeyUser = await authenticateApiKeyFromRequest(request);
   const baseUrl = getBaseUrl();
 
-  if (!canAccessDigestDate(digestDate, session)) {
+  if (!canAccessDigestDate(digestDate, session, apiKeyUser)) {
     return new NextResponse(serializeArchivePaywallMarkdown(!!session?.user, baseUrl), {
       status: 403,
       headers: MARKDOWN_HEADERS,

@@ -69,6 +69,13 @@ export function SiteNav({ session }: SiteNavProps) {
           {session?.user ? (
             <>
               <div className="hidden sm:flex items-center gap-3">
+                <Link
+                  href="/account"
+                  className="font-ui text-[0.6rem] tracking-widest uppercase transition-opacity duration-150 hover:opacity-60"
+                  style={{ color: "var(--ink-muted)" }}
+                >
+                  Account
+                </Link>
                 {!session.user.subscribed && (
                   <form action={createCheckoutSession}>
                     <button

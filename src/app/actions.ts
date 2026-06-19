@@ -5,8 +5,9 @@ import { revalidatePath } from "next/cache";
 import Stripe from "stripe";
 import { auth } from "@/auth";
 import { canAccessArchive } from "@/lib/access";
+import { generateApiKeyValue, getKeyDisplayPrefix, hashApiKey } from "@/lib/api-key";
 import { db } from "@/lib/db";
-import { bookmarks } from "@/lib/schema";
+import { apiKeys, bookmarks } from "@/lib/schema";
 import { and, eq } from "drizzle-orm";
 
 export async function createCheckoutSession() {
@@ -64,4 +65,67 @@ export async function toggleBookmark(articleId: number) {
 
   revalidatePath(`/article/${articleId}`);
   revalidatePath("/bookmarks");
+}
+
+export type ApiKeyStatus = {
+  prefix: string | null;
+  createdAt: Date | null;
+};
+
+export async function getApiKeyStatus(): Promise<ApiKeyStatus> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { prefix: null, createdAt: null };
+  }
+
+  const rows = await db
+    .select({ keyPrefix: apiKeys.keyPrefix, createdAt: apiKeys.createdAt })
+    .from(apiKeys)
+    .where(eq(apiKeys.userId, session.user.id))
+    .limit(1);
+
+  const row = rows[0];
+  return {
+    prefix: row?.keyPrefix ?? null,
+    createdAt: row?.createdAt ?? null,
+  };
+}
+
+export async function generateApiKey(): Promise<{ key: string } | { error: string }> {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  if (!session.user.subscribed) {
+    return { error: "An active subscription is required to generate an API key." };
+  }
+
+  const key = generateApiKeyValue();
+  const now = new Date();
+
+  await db
+    .insert(apiKeys)
+    .values({
+      userId: session.user.id,
+      keyHash: hashApiKey(key),
+      keyPrefix: getKeyDisplayPrefix(key),
+      createdAt: now,
+    })
+    .onConflictDoUpdate({
+      target: apiKeys.userId,
+      set: {
+        keyHash: hashApiKey(key),
+        keyPrefix: getKeyDisplayPrefix(key),
+        createdAt: now,
+      },
+    });
+
+  revalidatePath("/account");
+  return { key };
+}
+
+export async function revokeApiKey(): Promise<void> {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+
+  await db.delete(apiKeys).where(eq(apiKeys.userId, session.user.id));
+  revalidatePath("/account");
 }

@@ -1,4 +1,11 @@
-import { sqliteTable, text, integer, real, primaryKey } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  real,
+  primaryKey,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 
 export const articles = sqliteTable("articles", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -103,3 +110,21 @@ export const bookmarks = sqliteTable(
 );
 
 export type Bookmark = typeof bookmarks.$inferSelect;
+
+export const apiKeys = sqliteTable(
+  "api_key",
+  {
+    userId: text("user_id")
+      .notNull()
+      .primaryKey()
+      .references(() => users.id, { onDelete: "cascade" }),
+    keyHash: text("key_hash").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (table) => ({
+    keyHashIdx: uniqueIndex("api_key_key_hash_unique").on(table.keyHash),
+  }),
+);
+
+export type ApiKey = typeof apiKeys.$inferSelect;

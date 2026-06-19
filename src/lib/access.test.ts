@@ -79,6 +79,14 @@ describe("canAccessDigestDate", () => {
     const session = makeSession({ subscribed: false, createdAt });
     expect(canAccessDigestDate("2024-01-01", session)).toBe(false);
   });
+
+  test("past date is accessible with subscribed API key user", () => {
+    expect(canAccessDigestDate("2024-01-01", null, { subscribed: true })).toBe(true);
+  });
+
+  test("past date is inaccessible with non-subscribed API key user", () => {
+    expect(canAccessDigestDate("2024-01-01", null, { subscribed: false })).toBe(false);
+  });
 });
 
 describe("trialDaysRemaining", () => {
