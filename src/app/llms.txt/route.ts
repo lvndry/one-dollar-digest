@@ -40,6 +40,17 @@ async function buildLlmsTxt(): Promise<string> {
 
 ## Access
 Today's digest is free. Historical digests require a subscription or trial.
+
+Paid subscribers can generate an API key at ${base}/account for programmatic archive access.
+Send the key with either header:
+- Authorization: Bearer odd_...
+- X-API-Key: odd_...
+
+Archive endpoints (require key or logged-in access):
+- Markdown digest: ${base}/digest/YYYY-MM-DD.md
+- Markdown article: ${base}/article/{id}.md
+- JSON articles: ${base}/api/articles?date=YYYY-MM-DD
+- RSS archive: ${base}/feed.xml?date=YYYY-MM-DD
 `;
 }
 

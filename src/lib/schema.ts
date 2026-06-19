@@ -103,3 +103,15 @@ export const bookmarks = sqliteTable(
 );
 
 export type Bookmark = typeof bookmarks.$inferSelect;
+
+export const apiKeys = sqliteTable("api_key", {
+  userId: text("user_id")
+    .notNull()
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  keyHash: text("key_hash").notNull(),
+  keyPrefix: text("key_prefix").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export type ApiKey = typeof apiKeys.$inferSelect;

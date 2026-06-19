@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { authenticateApiKeyFromRequest } from "@/lib/api-key";
 import { canAccessDigestDate } from "@/lib/access";
 import { digestTodayIso } from "@/lib/digest-day";
 import { db } from "@/lib/db";
@@ -22,10 +23,11 @@ export async function GET(request: Request) {
   }
 
   const session = await auth();
+  const apiKeyUser = await authenticateApiKeyFromRequest(request);
 
-  if (!canAccessDigestDate(digestDate, session)) {
+  if (!canAccessDigestDate(digestDate, session, apiKeyUser)) {
     return NextResponse.json(
-      { error: "Archive access requires a subscription." },
+      { error: "Archive access requires a subscription or API key." },
       { status: 403 },
     );
   }

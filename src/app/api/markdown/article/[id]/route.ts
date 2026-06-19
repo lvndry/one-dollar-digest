@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
+import { authenticateApiKeyFromRequest } from "@/lib/api-key";
 import { canAccessDigestDate } from "@/lib/access";
 import {
   serializeArchivePaywallMarkdown,
@@ -18,7 +19,7 @@ const MARKDOWN_HEADERS = {
 } as const;
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
@@ -44,9 +45,10 @@ export async function GET(
   }
 
   const session = await auth();
+  const apiKeyUser = await authenticateApiKeyFromRequest(request);
   const baseUrl = getBaseUrl();
 
-  if (!canAccessDigestDate(article.digestDate, session)) {
+  if (!canAccessDigestDate(article.digestDate, session, apiKeyUser)) {
     return new NextResponse(serializeArchivePaywallMarkdown(!!session?.user, baseUrl), {
       status: 403,
       headers: MARKDOWN_HEADERS,
