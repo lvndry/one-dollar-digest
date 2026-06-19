@@ -70,6 +70,11 @@ export function generateMetadata(): Metadata {
       follow: true,
       googleBot: { index: true, follow: true, "max-image-preview": "large" },
     },
+    alternates: {
+      types: {
+        "application/rss+xml": [{ url: "/feed.xml", title: "The One Dollar Digest" }],
+      },
+    },
     category: "news",
   };
 }
