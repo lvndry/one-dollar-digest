@@ -41,6 +41,10 @@ export async function GET(
   }
 
   const rows = await getCachedArticlesForDigestDate(digestDate);
+  if (rows.length === 0) {
+    return new NextResponse("Not found", { status: 404 });
+  }
+
   return new NextResponse(serializeDigestToMarkdown(rows, digestDate, baseUrl), {
     headers: MARKDOWN_HEADERS,
   });
