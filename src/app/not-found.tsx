@@ -28,14 +28,14 @@ export default function NotFound() {
         }
 
         @media (prefers-reduced-motion: no-preference) {
-          .nf-rule-1 { animation: printRule 0.9s 0.05s cubic-bezier(0.16,1,0.3,1) both; }
-          .nf-rule-2 { animation: printRule 0.9s 0.18s cubic-bezier(0.16,1,0.3,1) both; }
-          .nf-rule-3 { animation: printRule 0.9s 0.28s cubic-bezier(0.16,1,0.3,1) both; }
-          .nf-rule-4 { animation: printRule 0.9s 0.38s cubic-bezier(0.16,1,0.3,1) both; }
-          .nf-glyph  { animation: glyphSettle 1.1s 0.55s cubic-bezier(0.16,1,0.3,1) both; }
-          .nf-up-1   { animation: fadeUp 0.65s 1.05s cubic-bezier(0.16,1,0.3,1) both; }
-          .nf-up-2   { animation: fadeUp 0.65s 1.2s  cubic-bezier(0.16,1,0.3,1) both; }
-          .nf-up-3   { animation: fadeUp 0.65s 1.35s cubic-bezier(0.16,1,0.3,1) both; }
+          .nf-rule-1 { animation: printRule 0.9s 0.05s cubic-bezier(0.16,1,0.3,1) forwards; }
+          .nf-rule-2 { animation: printRule 0.9s 0.18s cubic-bezier(0.16,1,0.3,1) forwards; }
+          .nf-rule-3 { animation: printRule 0.9s 0.28s cubic-bezier(0.16,1,0.3,1) forwards; }
+          .nf-rule-4 { animation: printRule 0.9s 0.38s cubic-bezier(0.16,1,0.3,1) forwards; }
+          .nf-glyph  { animation: glyphSettle 1.1s 0.55s cubic-bezier(0.16,1,0.3,1) forwards; }
+          .nf-up-1   { animation: fadeUp 0.65s 1.05s cubic-bezier(0.16,1,0.3,1) forwards; }
+          .nf-up-2   { animation: fadeUp 0.65s 1.2s  cubic-bezier(0.16,1,0.3,1) forwards; }
+          .nf-up-3   { animation: fadeUp 0.65s 1.35s cubic-bezier(0.16,1,0.3,1) forwards; }
         }
 
         .nf-back {
@@ -78,13 +78,9 @@ export default function NotFound() {
 
       <main
         style={{
-          minHeight: "100vh",
           backgroundColor: "var(--bg)",
           color: "var(--ink)",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          padding: "4rem clamp(1.5rem, 5vw, 5rem)",
+          padding: "3rem clamp(1.5rem, 5vw, 5rem) 4rem",
         }}
       >
         <div style={{ maxWidth: "860px", margin: "0 auto", width: "100%" }}>
