@@ -38,15 +38,6 @@ export default function NotFound() {
           .nf-up-3   { animation: fadeUp 0.65s 1.35s cubic-bezier(0.16,1,0.3,1) both; }
         }
 
-        .nf-back {
-          color: var(--accent);
-          text-decoration: none;
-          transition: opacity 0.15s ease;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .nf-back:hover { opacity: 0.55; }
       `}</style>
 
       {/* Print registration marks */}
@@ -214,12 +205,7 @@ export default function NotFound() {
           <div className="nf-up-3" style={{ textAlign: "center" }}>
             <Link
               href="/"
-              className="nf-back font-ui"
-              style={{
-                fontSize: "0.575rem",
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-              }}
+              className="btn-accent font-ui text-[0.6875rem] tracking-[0.08em] uppercase px-6 py-3 border inline-block"
             >
               ← Return to Today&apos;s Digest
             </Link>
