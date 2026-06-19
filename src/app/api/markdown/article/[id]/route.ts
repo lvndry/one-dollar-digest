@@ -36,7 +36,7 @@ export async function GET(
       .limit(1);
     article = rows[0];
   } catch {
-    return new NextResponse("Not found", { status: 404 });
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 
   if (!article) {

@@ -14,10 +14,7 @@ function formatRssPubDate(publishedAt: string): string {
 }
 
 export function buildRssFeed(articles: Article[], baseUrl: string): string {
-  const lastBuildDate =
-    articles.length > 0
-      ? formatRssPubDate(articles[0]!.publishedAt)
-      : new Date().toUTCString();
+  const lastBuildDate = new Date().toUTCString();
 
   const items = articles
     .map((article) => {
