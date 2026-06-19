@@ -5,9 +5,10 @@ import { generateApiKey, revokeApiKey, type ApiKeyStatus } from "@/app/actions";
 
 interface ApiKeySectionProps {
   initialStatus: ApiKeyStatus;
+  canGenerate?: boolean;
 }
 
-export function ApiKeySection({ initialStatus }: ApiKeySectionProps) {
+export function ApiKeySection({ initialStatus, canGenerate = true }: ApiKeySectionProps) {
   const [status, setStatus] = useState(initialStatus);
   const [revealedKey, setRevealedKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +74,7 @@ export function ApiKeySection({ initialStatus }: ApiKeySectionProps) {
         >
           Active key: {status.prefix}
           {status.createdAt ? (
-            <span style={{ color: "var(--ink-faint)" }}>
+            <span style={{ color: "var(--ink-faint)" }} suppressHydrationWarning>
               {" "}
               · created{" "}
               {status.createdAt.toLocaleDateString("en-US", {
@@ -125,15 +126,17 @@ export function ApiKeySection({ initialStatus }: ApiKeySectionProps) {
       ) : null}
 
       <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={isPending}
-          className="font-ui text-[0.65rem] tracking-[0.08em] uppercase px-4 py-2 transition-opacity duration-150 hover:opacity-70 disabled:opacity-40"
-          style={{ color: "var(--bg)", backgroundColor: "var(--accent)" }}
-        >
-          {status.prefix ? "Regenerate key" : "Generate key"}
-        </button>
+        {canGenerate ? (
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={isPending}
+            className="font-ui text-[0.65rem] tracking-[0.08em] uppercase px-4 py-2 transition-opacity duration-150 hover:opacity-70 disabled:opacity-40"
+            style={{ color: "var(--bg)", backgroundColor: "var(--accent)" }}
+          >
+            {status.prefix ? "Regenerate key" : "Generate key"}
+          </button>
+        ) : null}
         {status.prefix ? (
           <button
             type="button"

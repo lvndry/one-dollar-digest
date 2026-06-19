@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `api_key_key_hash_unique` ON `api_key` (`key_hash`);

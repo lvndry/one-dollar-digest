@@ -30,6 +30,13 @@ describe("api-key helpers", () => {
     expect(extractApiKeyFromRequest(request)).toBe("odd_secret");
   });
 
+  test("extractApiKeyFromRequest accepts lowercase bearer scheme", () => {
+    const request = new Request("https://example.com", {
+      headers: { Authorization: "bearer odd_secret" },
+    });
+    expect(extractApiKeyFromRequest(request)).toBe("odd_secret");
+  });
+
   test("extractApiKeyFromRequest reads X-API-Key header", () => {
     const request = new Request("https://example.com", {
       headers: { "X-API-Key": "odd_secret" },

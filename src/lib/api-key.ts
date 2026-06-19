@@ -20,8 +20,8 @@ export function getKeyDisplayPrefix(key: string): string {
 
 export function extractApiKeyFromRequest(request: Request): string | null {
   const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const token = authHeader.slice("Bearer ".length).trim();
+  if (authHeader && /^bearer\s+/i.test(authHeader)) {
+    const token = authHeader.slice(7).trim();
     if (token) return token;
   }
 

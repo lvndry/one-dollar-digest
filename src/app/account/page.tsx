@@ -13,7 +13,8 @@ export default async function AccountPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const apiKeyStatus = session.user.subscribed ? await getApiKeyStatus() : null;
+  const apiKeyStatus = await getApiKeyStatus();
+  const showApiKeySection = session.user.subscribed || apiKeyStatus.prefix !== null;
 
   return (
     <div
@@ -68,11 +69,12 @@ export default async function AccountPage() {
             ) : null}
           </section>
 
-          {session.user.subscribed ? (
+          {showApiKeySection ? (
             <>
               <div className="h-px" style={{ backgroundColor: "var(--border)" }} />
               <ApiKeySection
-                initialStatus={apiKeyStatus ?? { prefix: null, createdAt: null }}
+                initialStatus={apiKeyStatus}
+                canGenerate={session.user.subscribed}
               />
             </>
           ) : (

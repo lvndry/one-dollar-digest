@@ -74,7 +74,7 @@ export type ApiKeyStatus = {
 
 export async function getApiKeyStatus(): Promise<ApiKeyStatus> {
   const session = await auth();
-  if (!session?.user?.id || !session.user.subscribed) {
+  if (!session?.user?.id) {
     return { prefix: null, createdAt: null };
   }
 
@@ -125,7 +125,6 @@ export async function generateApiKey(): Promise<{ key: string } | { error: strin
 export async function revokeApiKey(): Promise<void> {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
-  if (!session.user.subscribed) redirect("/account");
 
   await db.delete(apiKeys).where(eq(apiKeys.userId, session.user.id));
   revalidatePath("/account");
