@@ -1,0 +1,59 @@
+{
+  "workflow_name": "onedollardigest",
+  "version": "1.0.0",
+  "description": "Daily digest of economic and financial news with strict date filtering",
+  "dates": {
+    "search_from": "SEARCH_FROM_DATE_PLACEHOLDER",
+    "select_from": "SELECT_FROM_DATE_PLACEHOLDER",
+    "digest_date": "DIGEST_DATE_PLACEHOLDER"
+  },
+  "coverage_map": {
+    "monetary_policy": {
+      "keywords": ["fed", "economy", "rates", "qt", "qe", "tightening", "pivot"],
+      "sources": ["reuters.com", "bloomberg.com", "ft.com", "wsj.com"]
+    },
+    "banking_markets": {
+      "keywords": ["wall street", "banks", "earnings", "merger", "credit spreads"],
+      "sources": ["reuters.com", "bloomberg.com", "ft.com", "cnbc.com"]
+    },
+    "currency_markets": {
+      "keywords": ["usd", "eur", "cny", "exchange rate", "fx", "intervention"],
+      "sources": ["reuters.com", "bloomberg.com", "fxstreet.com", "forexfactory.com"]
+    },
+    "precious_metals": {
+      "keywords": ["gold", "silver", "xau", "ag", "central bank buying"],
+      "sources": ["reuters.com", "bloomberg.com", "kitco.com", "moneycontrol.com"]
+    },
+    "geopolitical_economic": {
+      "keywords": ["sanctions", "trade war", "energy crisis", "regional stability"],
+      "sources": ["reuters.com", "bloomberg.com", "ft.com", "wsj.com"]
+    }
+  },
+  "query_template": {
+    "discovery": "{dimension} news {date}",
+    "targeted": "{actor} {event} {date}",
+    "fallback": "{dimension} developments {date}"
+  },
+  "quality_gates": {
+    "min_stories_per_dimension": 3,
+    "max_stories_per_dimension": 8,
+    "date_cutoff_hours": 48,
+    "confidence_threshold": 0.7
+  },
+  "output_schema": {
+    "required_fields": [
+      "title",
+      "summary",
+      "source",
+      "sources",
+      "category",
+      "publishedAt",
+      "digestDate",
+      "importanceScore"
+    ],
+    "source_format": {
+      "name": "string",
+      "url": "string"
+    }
+  }
+}
