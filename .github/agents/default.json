@@ -2,11 +2,11 @@
   "id": "default",
   "name": "default",
   "description": "One Dollar Digest research agent",
-  "model": "openrouter/owl-alpha",
+  "model": "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "openrouter/owl-alpha",
+    "llmModel": "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
     "tools": [
       "web_search",
       "http_request",

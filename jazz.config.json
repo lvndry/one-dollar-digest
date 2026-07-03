@@ -1,6 +1,6 @@
 {
   "llmProvider": "openrouter",
-  "llmModel": "openrouter/owl-alpha",
+  "llmModel": "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
   "web_search": {
     "provider": "exa"
   },
