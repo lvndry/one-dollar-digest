@@ -77,7 +77,7 @@ describe("POST /api/articles/ingest", () => {
           summary: "A valid enough summary for testing invalid category handling.",
           source: "Example",
           sources: [{ name: "Example", url: "https://example.com/bad-category" }],
-          category: "finance",
+          category: "economy",
           publishedAt: "2026-05-04",
           digestDate: "2026-05-04",
         },
@@ -86,7 +86,7 @@ describe("POST /api/articles/ingest", () => {
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
-      error: 'Invalid category at row 0; expected "tech" or "politics"',
+      error: 'Invalid category at row 0; expected "tech", "politics", or "finance"',
     });
     expect(insertedRows).toHaveLength(0);
   });

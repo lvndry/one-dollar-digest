@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 const GITHUB_REPO = "lvndry/one-dollar-digest";
-const VALID_CATEGORIES = ["both", "tech", "politics"] as const;
+const VALID_CATEGORIES = ["both", "tech", "politics", "finance"] as const;
 type Category = (typeof VALID_CATEGORIES)[number];
 
 export async function POST(req: NextRequest) {

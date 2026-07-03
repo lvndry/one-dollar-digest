@@ -16,7 +16,7 @@ async function buildLlmsTxt(): Promise<string> {
 
   return `# The One Dollar Digest
 
-> AI-curated daily news covering technology and politics. Clearly sourced, $1/month for archive access.
+> AI-curated daily news covering technology, politics, and finance. Clearly sourced, $1/month for archive access.
 
 ## Feeds
 - RSS: ${base}/feed.xml
@@ -28,6 +28,7 @@ async function buildLlmsTxt(): Promise<string> {
 - Home: ${base}/
 - Technology: ${base}/tech
 - Politics: ${base}/politics
+- Finance: ${base}/finance
 - Archive navigation: append ?date=YYYY-MM-DD to any digest page
 
 ## Article URLs

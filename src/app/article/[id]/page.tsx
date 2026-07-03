@@ -122,6 +122,7 @@ const SUB_COLOR: Record<string, string> = {
 
 function getArticleSection(article: Article): string {
   if (article.category === "politics") return "Politics";
+  if (article.category === "finance") return "Finance";
   return article.subcategory ?? "Technology";
 }
 
@@ -368,25 +369,26 @@ export default async function ArticlePage({
           </section>
         )}
 
-        {article.category === "tech" && article.technicalSignificance && (
-          <section
-            className="mt-10 border-l pl-5"
-            style={{ borderColor: "var(--border-strong)" }}
-          >
-            <h2
-              className="font-ui text-[0.65rem] tracking-widest uppercase mb-3"
-              style={{ color: "var(--ink-faint)" }}
+        {(article.category === "tech" || article.category === "finance") &&
+          article.technicalSignificance && (
+            <section
+              className="mt-10 border-l pl-5"
+              style={{ borderColor: "var(--border-strong)" }}
             >
-              Technical significance
-            </h2>
-            <p
-              className="font-body text-[0.98rem] leading-[1.8]"
-              style={{ color: "var(--ink-mid)" }}
-            >
-              {article.technicalSignificance}
-            </p>
-          </section>
-        )}
+              <h2
+                className="font-ui text-[0.65rem] tracking-widest uppercase mb-3"
+                style={{ color: "var(--ink-faint)" }}
+              >
+                Technical significance
+              </h2>
+              <p
+                className="font-body text-[0.98rem] leading-[1.8]"
+                style={{ color: "var(--ink-mid)" }}
+              >
+                {article.technicalSignificance}
+              </p>
+            </section>
+          )}
 
         {articleSources.some((source) => source.url) && (
           <div className="mt-14 pt-10 border-t" style={{ borderColor: "var(--border)" }}>

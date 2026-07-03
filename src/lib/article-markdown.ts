@@ -20,6 +20,7 @@ function formatPublishedDate(publishedAt: string): string {
 
 function getCategoryLabel(article: Article): string {
   if (article.category === "politics") return "Politics";
+  if (article.category === "finance") return "Finance";
   return article.subcategory ? `Technology · ${article.subcategory}` : "Technology";
 }
 
@@ -64,7 +65,10 @@ export function serializeArticleToMarkdown(article: Article, baseUrl: string): s
     lines.push("", "## Strategic interpretation", "", article.strategicInterpretation);
   }
 
-  if (article.category === "tech" && article.technicalSignificance) {
+  if (
+    (article.category === "tech" || article.category === "finance") &&
+    article.technicalSignificance
+  ) {
     lines.push("", "## Technical significance", "", article.technicalSignificance);
   }
 
