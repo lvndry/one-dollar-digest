@@ -8,6 +8,7 @@ const TABS = [
   { href: "/", label: "Today" },
   { href: "/tech", label: "Tech" },
   { href: "/politics", label: "Politics" },
+  { href: "/finance", label: "Finance" },
 ];
 
 export function MobileTabBar() {

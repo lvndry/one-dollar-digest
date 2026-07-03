@@ -13,7 +13,7 @@ export const articles = sqliteTable("articles", {
   summary: text("summary").notNull(),
   source: text("source").notNull(),
   sources: text("sources"),
-  category: text("category", { enum: ["tech", "politics"] }).notNull(),
+  category: text("category", { enum: ["tech", "politics", "finance"] }).notNull(),
   subcategory: text("subcategory"),
   bias: text("bias", {
     enum: ["far-left", "left", "center", "right", "far-right"],

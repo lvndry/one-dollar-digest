@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { DateCalendar } from "@/components/DateCalendar";
 
-const DIGEST_PATHS = new Set(["/", "/tech", "/politics"]);
+const DIGEST_PATHS = new Set(["/", "/tech", "/politics", "/finance"]);
 
 /** Hide archive strip on auth flows: `/login`, `/login/verify`, and optional top-level `/verify`. */
 function isAuthClutterPath(pathname: string): boolean {

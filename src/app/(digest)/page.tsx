@@ -30,7 +30,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const techCount = countDigestArticlesForCategory(articles, "tech");
   const politicsCount = countDigestArticlesForCategory(articles, "politics");
-  const hasAnySection = techCount > 0 || politicsCount > 0;
+  const financeCount = countDigestArticlesForCategory(articles, "finance");
+  const hasAnySection = techCount > 0 || politicsCount > 0 || financeCount > 0;
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
   const jsonLd = {
@@ -137,6 +138,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 label="Technology"
                 articleLimit={7}
                 titleHref={`/tech${dateQuerySuffix}`}
+              />
+            )}
+            {financeCount > 0 && (
+              <DigestGrid
+                articles={articles}
+                category="finance"
+                label="Finance"
+                articleLimit={7}
+                titleHref={`/finance${dateQuerySuffix}`}
               />
             )}
             {politicsCount > 0 && (

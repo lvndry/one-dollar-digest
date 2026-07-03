@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { dateAwareHref } from "@/lib/nav";
 
-const SWIPEABLE_TABS = ["/", "/tech", "/politics"];
+const SWIPEABLE_TABS = ["/", "/tech", "/politics", "/finance"];
 const SWIPE_THRESHOLD = 80;
 const HORIZONTAL_DOMINANCE_RATIO = 1.5;
 

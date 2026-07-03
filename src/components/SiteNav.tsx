@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Today" },
   { href: "/tech", label: "Technology" },
   { href: "/politics", label: "Politics" },
+  { href: "/finance", label: "Finance" },
   { href: "/bookmarks", label: "Bookmarks" },
 ];
 

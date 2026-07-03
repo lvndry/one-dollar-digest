@@ -2,10 +2,11 @@ import type { Article, ArticleCategory } from "@/lib/schema";
 import { formatDigestDisplayDate } from "@/lib/digest-day";
 import { serializeArticleToMarkdown } from "@/lib/article-markdown";
 
-const CATEGORY_ORDER: ArticleCategory[] = ["tech", "politics"];
+const CATEGORY_ORDER: ArticleCategory[] = ["tech", "finance", "politics"];
 
 const CATEGORY_LABELS: Record<ArticleCategory, string> = {
   tech: "Technology",
+  finance: "Finance",
   politics: "Politics",
 };
 

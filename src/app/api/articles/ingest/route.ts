@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   if (invalidCategoryIndex !== -1) {
     return NextResponse.json(
       {
-        error: `Invalid category at row ${invalidCategoryIndex}; expected "tech" or "politics"`,
+        error: `Invalid category at row ${invalidCategoryIndex}; expected "tech", "politics", or "finance"`,
       },
       { status: 400 },
     );
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     const whyItMatters = optionalString(row.whyItMatters);
     const technicalSignificance =
       optionalString(row.technicalSignificance) ??
-      (category === "tech" ? whyItMatters : null);
+      (category === "tech" || category === "finance" ? whyItMatters : null);
     const strategicInterpretation =
       optionalString(row.strategicInterpretation) ??
       (category === "politics" ? whyItMatters : null);

@@ -2,7 +2,7 @@ const CACHE_NAME = "odd-v1";
 const STATIC_CACHE_NAME = "odd-static-v1";
 
 // Assets to precache on install
-const PRECACHE_URLS = ["/", "/tech", "/politics"];
+const PRECACHE_URLS = ["/", "/tech", "/politics", "/finance"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
