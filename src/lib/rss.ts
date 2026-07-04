@@ -39,7 +39,7 @@ export function buildRssFeed(articles: Article[], baseUrl: string): string {
     "  <channel>",
     "    <title>The One Dollar Digest</title>",
     `    <link>${baseUrl}</link>`,
-    "    <description>AI-curated daily news digest. Technology and politics, clearly sourced.</description>",
+    "    <description>AI-curated daily news digest. Technology, politics, and finance, clearly sourced.</description>",
     "    <language>en-us</language>",
     `    <lastBuildDate>${lastBuildDate}</lastBuildDate>`,
     `    <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml" />`,
