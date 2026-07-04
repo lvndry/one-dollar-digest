@@ -2,11 +2,11 @@
   "id": "default",
   "name": "default",
   "description": "One Dollar Digest research agent",
-  "model": "qwen/qwen3-coder:free",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "qwen/qwen3-coder:free",
+    "llmModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
     "tools": [
       "web_search",
       "http_request",
