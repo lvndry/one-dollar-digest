@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 const GITHUB_REPO = "lvndry/one-dollar-digest";
-const VALID_CATEGORIES = ["both", "tech", "politics", "finance"] as const;
+const VALID_CATEGORIES = ["all", "tech", "politics", "finance"] as const;
 type Category = (typeof VALID_CATEGORIES)[number];
 
 export async function POST(req: NextRequest) {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   const body = (await req.json().catch(() => ({}))) || {};
 
-  let category: Category = "both";
+  let category: Category = "all";
   if (body.category && VALID_CATEGORIES.includes(body.category)) {
     category = body.category;
   }
