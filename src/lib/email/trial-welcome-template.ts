@@ -73,7 +73,7 @@ export function trialWelcomeEmailHtml({ email }: { email: string }): string {
                           ✦
                         </td>
                         <td style="font-size:14px;line-height:1.5;color:#1a1816;">
-                          <strong>Daily briefings</strong> — technology and politics, every morning
+                          <strong>Daily briefings</strong> — technology, politics, and finance, every morning
                         </td>
                       </tr>
                     </table>
@@ -173,7 +173,7 @@ export function trialWelcomeEmailText({ email }: { email: string }): string {
     `For the next 3 days you have full access — including the complete archive of past issues.`,
     ``,
     `What's included:`,
-    `  ✦ Daily briefings — technology and politics, every morning`,
+    `  ✦ Daily briefings — technology, politics, and finance, every morning`,
     `  ✦ Full archive access — every past issue, searchable by date`,
     `  ✦ Bias-labeled sources — know who is telling you what`,
     `  ✦ $1 / month after your trial`,

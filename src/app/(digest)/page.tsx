@@ -9,11 +9,11 @@ import { countDigestArticlesForCategory, loadDigestDay } from "@/lib/digest-day"
 
 export const metadata: Metadata = {
   description:
-    "Today's most important tech and political stories, AI-curated and clearly sourced.",
+    "Today's most important tech, political, and finance stories, AI-curated and clearly sourced.",
   alternates: { canonical: "/" },
   openGraph: {
     description:
-      "Today's most important tech and political stories, AI-curated and clearly sourced.",
+      "Today's most important tech, political, and finance stories, AI-curated and clearly sourced.",
     images: [
       { url: "/opengraph-image", width: 1200, height: 630, alt: "The One Dollar Digest" },
     ],
@@ -40,7 +40,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     name: "The One Dollar Digest",
     url: base,
     description:
-      "AI-curated daily news digest. Technology and politics, clearly sourced, for $1/month.",
+      "AI-curated daily news digest. Technology, politics, and finance, clearly sourced, for $1/month.",
     potentialAction: {
       "@type": "SearchAction",
       target: { "@type": "EntryPoint", urlTemplate: `${base}/?date={date}` },
@@ -92,7 +92,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             animationDelay: "130ms",
           }}
         >
-          Tech and politics, clearly sourced.
+          Tech, politics, and finance, clearly sourced.
           <br />
           One dollar a month.
         </p>
