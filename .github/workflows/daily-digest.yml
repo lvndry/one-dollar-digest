@@ -12,6 +12,7 @@ on:
           - both
           - tech
           - politics
+          - finance
       date:
         description: "Digest date (YYYY-MM-DD, leave empty for today UTC)"
         required: false
@@ -258,6 +259,114 @@ jobs:
 
           cat >> $GITHUB_STEP_SUMMARY << EOF
           ## Political News — ${DATE}
+
+          | | |
+          |---|---|
+          | Articles fetched | ${COUNT} |
+          | Articles inserted | ${INSERTED} |
+          | Skipped (no URL) | ${SKIPPED_NO_URL} |
+          | Skipped (off date) | ${SKIPPED_OFF_DATE} |
+          | Skipped (duplicate) | ${SKIPPED_DUPES} |
+          | Run cost | ${COST} |
+          | Tokens | ${TOKENS:-n/a} |
+
+  finance-news:
+    name: Finance News
+    runs-on: ubuntu-latest
+    needs: setup-db
+    if: ${{ always() && needs.setup-db.result == 'success' && (inputs.category == '' || inputs.category == 'both' || inputs.category == 'finance') }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install project dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Jazz
+        run: bun install -g jazz-ai
+
+      - name: Determine digest date
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then
+            echo "DATE=${{ inputs.date }}" >> $GITHUB_ENV
+          else
+            echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
+          fi
+
+      - name: Configure Jazz search providers
+        run: jazz config set web_search.exa.api_key "$EXA_API_KEY"
+        env:
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+
+      - name: Run finance-news workflow
+        id: jazz
+        run: |
+          jazz --config ./jazz.config.json --output raw workflow run finance-news --auto-approve \
+            | tee /tmp/jazz-output.txt
+          SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          TARGET_DATE: ${{ env.DATE }}
+          CI: "true"
+          JAZZ_DISABLE_CATCH_UP: "1"
+
+      - name: Insert articles into DB
+        run: |
+          OUTPUT_FILE="output/finance-news-${DATE}.json"
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "::error::No output file found at $OUTPUT_FILE — workflow produced no articles"
+            exit 1
+          fi
+          bun ./scripts/insert-articles.ts "$OUTPUT_FILE"
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
+          REVALIDATE_URL: https://www.onedollardigest.com/api/revalidate
+
+      - name: Write job summary
+        if: always()
+        run: |
+          OUTPUT_FILE="output/finance-news-${DATE}.json"
+
+          COUNT=0
+          if [ -f "$OUTPUT_FILE" ]; then
+            COUNT=$(jq 'length' "$OUTPUT_FILE")
+          fi
+
+          INSERTED="n/a"
+          SKIPPED_NO_URL="n/a"
+          SKIPPED_OFF_DATE="n/a"
+          SKIPPED_DUPES="n/a"
+          if [ -f /tmp/insert-stats.json ]; then
+            INSERTED=$(jq -r '.inserted' /tmp/insert-stats.json)
+            SKIPPED_NO_URL=$(jq -r '.skippedNoUrl' /tmp/insert-stats.json)
+            SKIPPED_OFF_DATE=$(jq -r '.skippedOffDate // "n/a"' /tmp/insert-stats.json)
+            SKIPPED_DUPES=$(jq -r '.skippedDuplicates' /tmp/insert-stats.json)
+          fi
+
+          COST="n/a"
+          TOKENS=""
+          SUMMARY='${{ steps.jazz.outputs.summary }}'
+          if [ -n "$SUMMARY" ]; then
+            RAW_COST=$(echo "$SUMMARY" | jq -r '.costUSD // empty')
+            if [ -n "$RAW_COST" ]; then
+              COST=$(printf '$%.4f' $RAW_COST)
+            fi
+            PROMPT=$(echo "$SUMMARY" | jq -r '.tokenUsage.promptTokens // empty')
+            COMPLETION=$(echo "$SUMMARY" | jq -r '.tokenUsage.completionTokens // empty')
+            if [ -n "$PROMPT" ] && [ -n "$COMPLETION" ]; then
+              TOKENS="${PROMPT} in / ${COMPLETION} out"
+            fi
+          fi
+
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## Finance News — ${DATE}
 
           | | |
           |---|---|
