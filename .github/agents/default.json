@@ -2,11 +2,11 @@
   "id": "default",
   "name": "default",
   "description": "One Dollar Digest research agent",
-  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "model": "google/gemma-4-26b-a4b-it:free",
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "llmModel": "google/gemma-4-26b-a4b-it:free",
     "tools": [
       "web_search",
       "http_request",
