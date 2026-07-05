@@ -79,14 +79,14 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
-      - name: Configure Jazz search providers
-        run: jazz --config ./jazz.config.json config set web_search.exa.api_key "$EXA_API_KEY"
+      - name: Configure Jazz API keys
+        run: |
+          jq --arg exa "$EXA_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
+            '.web_search.exa.api_key = $exa | .llm.openrouter.api_key = $openrouter' \
+            jazz.config.json > jazz.config.tmp.json
+          mv jazz.config.tmp.json jazz.config.json
         env:
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-
-      - name: Configure Jazz LLM provider
-        run: jazz --config ./jazz.config.json config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
-        env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run tech-news workflow
@@ -193,14 +193,14 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
-      - name: Configure Jazz search providers
-        run: jazz --config ./jazz.config.json config set web_search.exa.api_key "$EXA_API_KEY"
+      - name: Configure Jazz API keys
+        run: |
+          jq --arg exa "$EXA_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
+            '.web_search.exa.api_key = $exa | .llm.openrouter.api_key = $openrouter' \
+            jazz.config.json > jazz.config.tmp.json
+          mv jazz.config.tmp.json jazz.config.json
         env:
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-
-      - name: Configure Jazz LLM provider
-        run: jazz --config ./jazz.config.json config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
-        env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run political-news workflow
@@ -306,14 +306,14 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
-      - name: Configure Jazz search providers
-        run: jazz --config ./jazz.config.json config set web_search.exa.api_key "$EXA_API_KEY"
+      - name: Configure Jazz API keys
+        run: |
+          jq --arg exa "$EXA_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
+            '.web_search.exa.api_key = $exa | .llm.openrouter.api_key = $openrouter' \
+            jazz.config.json > jazz.config.tmp.json
+          mv jazz.config.tmp.json jazz.config.json
         env:
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-
-      - name: Configure Jazz LLM provider
-        run: jazz --config ./jazz.config.json config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
-        env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run finance-news workflow
