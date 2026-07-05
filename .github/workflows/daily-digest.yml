@@ -80,12 +80,12 @@ jobs:
           fi
 
       - name: Configure Jazz search providers
-        run: jazz config set web_search.exa.api_key "$EXA_API_KEY"
+        run: jazz --config ./jazz.config.json config set web_search.exa.api_key "$EXA_API_KEY"
         env:
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
 
       - name: Configure Jazz LLM provider
-        run: jazz config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
+        run: jazz --config ./jazz.config.json config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
@@ -194,12 +194,12 @@ jobs:
           fi
 
       - name: Configure Jazz search providers
-        run: jazz config set web_search.exa.api_key "$EXA_API_KEY"
+        run: jazz --config ./jazz.config.json config set web_search.exa.api_key "$EXA_API_KEY"
         env:
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
 
       - name: Configure Jazz LLM provider
-        run: jazz config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
+        run: jazz --config ./jazz.config.json config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
@@ -307,12 +307,12 @@ jobs:
           fi
 
       - name: Configure Jazz search providers
-        run: jazz config set web_search.exa.api_key "$EXA_API_KEY"
+        run: jazz --config ./jazz.config.json config set web_search.exa.api_key "$EXA_API_KEY"
         env:
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
 
       - name: Configure Jazz LLM provider
-        run: jazz config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
+        run: jazz --config ./jazz.config.json config set llm.openrouter.api_key "$OPENROUTER_API_KEY"
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
