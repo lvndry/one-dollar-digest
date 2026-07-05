@@ -2,11 +2,11 @@
   "id": "default",
   "name": "default",
   "description": "One Dollar Digest research agent",
-  "model": "google/gemma-4-26b-a4b-it:free",
+  "model": "google/gemma-4-31b-it:free",
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "google/gemma-4-26b-a4b-it:free",
+    "llmModel": "google/gemma-4-31b-it:free",
     "tools": [
       "web_search",
       "http_request",
