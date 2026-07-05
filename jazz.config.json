@@ -1,6 +1,4 @@
 {
-  "llmProvider": "openrouter",
-  "llmModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
   "web_search": {
     "provider": "exa"
   },
