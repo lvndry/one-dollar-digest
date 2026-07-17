@@ -6,6 +6,7 @@
     "persona": "default",
     "llmProvider": "openrouter",
     "llmModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "temperature": 0.4,
     "tools": [
       "web_search",
       "http_request",
