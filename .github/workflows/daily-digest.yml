@@ -81,12 +81,12 @@ jobs:
 
       - name: Configure Jazz API keys
         run: |
-          jq --arg exa "$EXA_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
-            '.web_search.exa.api_key = $exa | .llm.openrouter.api_key = $openrouter' \
+          jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
+            '.web_search.brave.api_key = $brave | .llm.openrouter.api_key = $openrouter' \
             jazz.config.json > jazz.config.tmp.json
           mv jazz.config.tmp.json jazz.config.json
         env:
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run tech-news workflow
@@ -98,7 +98,7 @@ jobs:
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
@@ -125,6 +125,11 @@ jobs:
           COUNT=0
           if [ -f "$OUTPUT_FILE" ]; then
             COUNT=$(jq 'length' "$OUTPUT_FILE")
+          fi
+
+          WEB_SEARCHES=0
+          if [ -f /tmp/jazz-output.txt ]; then
+            WEB_SEARCHES=$(grep -c 'Executing tool: web_search' /tmp/jazz-output.txt || true)
           fi
 
           INSERTED="n/a"
@@ -163,6 +168,7 @@ jobs:
           | Skipped (no URL) | ${SKIPPED_NO_URL} |
           | Skipped (off date) | ${SKIPPED_OFF_DATE} |
           | Skipped (duplicate) | ${SKIPPED_DUPES} |
+          | Web searches | ${WEB_SEARCHES} |
           | Run cost | ${COST} |
           | Tokens | ${TOKENS:-n/a} |
           EOF
@@ -195,12 +201,12 @@ jobs:
 
       - name: Configure Jazz API keys
         run: |
-          jq --arg exa "$EXA_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
-            '.web_search.exa.api_key = $exa | .llm.openrouter.api_key = $openrouter' \
+          jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
+            '.web_search.brave.api_key = $brave | .llm.openrouter.api_key = $openrouter' \
             jazz.config.json > jazz.config.tmp.json
           mv jazz.config.tmp.json jazz.config.json
         env:
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run political-news workflow
@@ -212,7 +218,7 @@ jobs:
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
@@ -239,6 +245,11 @@ jobs:
           COUNT=0
           if [ -f "$OUTPUT_FILE" ]; then
             COUNT=$(jq 'length' "$OUTPUT_FILE")
+          fi
+
+          WEB_SEARCHES=0
+          if [ -f /tmp/jazz-output.txt ]; then
+            WEB_SEARCHES=$(grep -c 'Executing tool: web_search' /tmp/jazz-output.txt || true)
           fi
 
           INSERTED="n/a"
@@ -277,8 +288,10 @@ jobs:
           | Skipped (no URL) | ${SKIPPED_NO_URL} |
           | Skipped (off date) | ${SKIPPED_OFF_DATE} |
           | Skipped (duplicate) | ${SKIPPED_DUPES} |
+          | Web searches | ${WEB_SEARCHES} |
           | Run cost | ${COST} |
           | Tokens | ${TOKENS:-n/a} |
+          EOF
 
   finance-news:
     name: Finance News
@@ -308,12 +321,12 @@ jobs:
 
       - name: Configure Jazz API keys
         run: |
-          jq --arg exa "$EXA_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
-            '.web_search.exa.api_key = $exa | .llm.openrouter.api_key = $openrouter' \
+          jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
+            '.web_search.brave.api_key = $brave | .llm.openrouter.api_key = $openrouter' \
             jazz.config.json > jazz.config.tmp.json
           mv jazz.config.tmp.json jazz.config.json
         env:
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run finance-news workflow
@@ -325,7 +338,7 @@ jobs:
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
@@ -352,6 +365,11 @@ jobs:
           COUNT=0
           if [ -f "$OUTPUT_FILE" ]; then
             COUNT=$(jq 'length' "$OUTPUT_FILE")
+          fi
+
+          WEB_SEARCHES=0
+          if [ -f /tmp/jazz-output.txt ]; then
+            WEB_SEARCHES=$(grep -c 'Executing tool: web_search' /tmp/jazz-output.txt || true)
           fi
 
           INSERTED="n/a"
@@ -390,6 +408,7 @@ jobs:
           | Skipped (no URL) | ${SKIPPED_NO_URL} |
           | Skipped (off date) | ${SKIPPED_OFF_DATE} |
           | Skipped (duplicate) | ${SKIPPED_DUPES} |
+          | Web searches | ${WEB_SEARCHES} |
           | Run cost | ${COST} |
           | Tokens | ${TOKENS:-n/a} |
           EOF
