@@ -1,6 +1,6 @@
 {
   "web_search": {
-    "provider": "exa"
+    "provider": "brave"
   },
   "storage": {
     "type": "file",
