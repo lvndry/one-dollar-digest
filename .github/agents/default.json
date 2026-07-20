@@ -5,7 +5,7 @@
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "cohere/north-mini-code:free",
+    "llmModel": "nvidia/nemotron-3-super-120b-a12b:free",
     "temperature": 0.4,
     "tools": [
       "web_search",
