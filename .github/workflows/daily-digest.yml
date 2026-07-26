@@ -92,10 +92,25 @@ jobs:
       - name: Run tech-news workflow
         id: jazz
         run: |
-          jazz --config ./jazz.config.json --output raw workflow run tech-news --auto-approve \
-            | tee /tmp/jazz-output.txt
-          SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
-          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+          set -o pipefail
+          OUTPUT_FILE="output/tech-news-${DATE}.json"
+          ATTEMPTS=2
+          for attempt in $(seq 1 "$ATTEMPTS"); do
+            echo "::group::tech-news attempt ${attempt}/${ATTEMPTS}"
+            rm -f "$OUTPUT_FILE"
+            if jazz --config ./jazz.config.json --output raw workflow run tech-news --auto-approve \
+              | tee /tmp/jazz-output.txt && [ -f "$OUTPUT_FILE" ]; then
+              echo "::endgroup::"
+              SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
+              echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "::warning::tech-news attempt ${attempt} failed (jazz error or missing output file)"
+            [ "$attempt" -lt "$ATTEMPTS" ] && sleep 30
+          done
+          echo "::error::tech-news workflow failed after ${ATTEMPTS} attempts"
+          exit 1
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
@@ -212,10 +227,25 @@ jobs:
       - name: Run political-news workflow
         id: jazz
         run: |
-          jazz --config ./jazz.config.json --output raw workflow run political-news --auto-approve \
-            | tee /tmp/jazz-output.txt
-          SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
-          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+          set -o pipefail
+          OUTPUT_FILE="output/political-news-${DATE}.json"
+          ATTEMPTS=2
+          for attempt in $(seq 1 "$ATTEMPTS"); do
+            echo "::group::political-news attempt ${attempt}/${ATTEMPTS}"
+            rm -f "$OUTPUT_FILE"
+            if jazz --config ./jazz.config.json --output raw workflow run political-news --auto-approve \
+              | tee /tmp/jazz-output.txt && [ -f "$OUTPUT_FILE" ]; then
+              echo "::endgroup::"
+              SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
+              echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "::warning::political-news attempt ${attempt} failed (jazz error or missing output file)"
+            [ "$attempt" -lt "$ATTEMPTS" ] && sleep 30
+          done
+          echo "::error::political-news workflow failed after ${ATTEMPTS} attempts"
+          exit 1
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
@@ -332,10 +362,25 @@ jobs:
       - name: Run finance-news workflow
         id: jazz
         run: |
-          jazz --config ./jazz.config.json --output raw workflow run finance-news --auto-approve \
-            | tee /tmp/jazz-output.txt
-          SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
-          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+          set -o pipefail
+          OUTPUT_FILE="output/finance-news-${DATE}.json"
+          ATTEMPTS=2
+          for attempt in $(seq 1 "$ATTEMPTS"); do
+            echo "::group::finance-news attempt ${attempt}/${ATTEMPTS}"
+            rm -f "$OUTPUT_FILE"
+            if jazz --config ./jazz.config.json --output raw workflow run finance-news --auto-approve \
+              | tee /tmp/jazz-output.txt && [ -f "$OUTPUT_FILE" ]; then
+              echo "::endgroup::"
+              SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
+              echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "::warning::finance-news attempt ${attempt} failed (jazz error or missing output file)"
+            [ "$attempt" -lt "$ATTEMPTS" ] && sleep 30
+          done
+          echo "::error::finance-news workflow failed after ${ATTEMPTS} attempts"
+          exit 1
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
