@@ -38,6 +38,11 @@ describe("ArticleSchema", () => {
     expect(result.error?.issues[0]?.path).toContain("category");
   });
 
+  test("accepts finance category", () => {
+    const result = ArticleSchema.safeParse({ ...validArticle, category: "finance" });
+    expect(result.success).toBe(true);
+  });
+
   test("rejects invalid bias value", () => {
     const result = ArticleSchema.safeParse({ ...validArticle, bias: "moderate" });
     expect(result.success).toBe(false);

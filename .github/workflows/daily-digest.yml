@@ -69,7 +69,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Jazz
-        run: bun install -g jazz-ai
+        run: npm install -g jazz-ai
 
       - name: Determine digest date
         run: |
@@ -204,7 +204,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Jazz
-        run: bun install -g jazz-ai
+        run: npm install -g jazz-ai
 
       - name: Determine digest date
         run: |
@@ -339,7 +339,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Jazz
-        run: bun install -g jazz-ai
+        run: npm install -g jazz-ai
 
       - name: Determine digest date
         run: |
