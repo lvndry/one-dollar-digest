@@ -13,7 +13,7 @@ export const ArticleSchema = z.object({
   summary: z.string().min(10),
   source: z.string().min(1),
   sources: z.array(SourceSchema).min(1),
-  category: z.enum(["tech", "politics"]),
+  category: z.enum(["tech", "politics", "finance"]),
   subcategory: z.string().optional().nullable(),
   bias: z
     .enum(["far-left", "left", "center", "right", "far-right"])

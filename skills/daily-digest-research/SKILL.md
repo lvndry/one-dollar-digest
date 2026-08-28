@@ -305,7 +305,7 @@ After all research and scoring is complete and you have a final list of articles
 
    > "You are a JSON serializer. Your only job is to convert the article data below into a valid JSON array matching the exact schema. Do not research. Do not add information. Do not change any values. Output ONLY the JSON array — no markdown fences, no explanations, no prose.
    >
-   > Required fields per article: `title` (string), `summary` (string), `source` (string), `sources` (non-empty array of {name, url}), `category` ("tech" or "politics"), `publishedAt` (YYYY-MM-DD).
+   > Required fields per article: `title` (string), `summary` (string), `source` (string), `sources` (non-empty array of {name, url}), `category` ("tech", "politics", or "finance"), `publishedAt` (YYYY-MM-DD).
    > Optional: `bias` (one of: far-left, left, center, right, far-right), `subcategory`, `importanceScore` (0.0–1.0), `tags` (array), `regions` (array), `primaryRegion`, `strategicInterpretation`, `technicalSignificance`.
    >
    > Article data: [paste all articles in any readable format]"

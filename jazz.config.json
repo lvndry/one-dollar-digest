@@ -1,7 +1,4 @@
 {
-  "web_search": {
-    "provider": "brave"
-  },
   "storage": {
     "type": "file",
     "path": ".github"
