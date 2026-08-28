@@ -25,11 +25,22 @@ The eight regions below are the coverage axis. Every region is a peer — nothin
 - **US** — United States federal and state politics, US-centric policy outcomes
 - **China** — PRC politics, policy, and cross-strait issues where China is a primary actor
 - **BRICS** — the bloc, enlargement, joint statements, or BRICS-framed summits and institutions (also tag member-state regions when the story is national, not bloc-level)
-- **Europe** — EU, UK, EEA, Ukraine/Russia when framed as European geopolitics, other European states
+- **Europe** — EU, UK, EEA, Ukraine/Russia when framed as European geopolitics, other European states. **France gets its own dedicated query bundle within this dimension** — French national politics (Assemblée Nationale, government, Élysée), French-EU relations, and French positioning on major European debates must be actively searched every run, not left to surface incidentally
 - **Africa** — African Union and national politics on the continent
 - **Asia** — Asia-Pacific excluding stories already tagged only as China when the lens is purely PRC-internal; use for Japan, Korea, India, ASEAN, Oceania regional politics
 - **South America** — Latin America south of Panama (Mercosur, Andean states, Brazil when the story is regional not only BRICS-bloc)
 - **Middle East** — Israel, Palestine, Gulf states, Iran, Turkey, Levant, and North Africa when framed through MENA regional politics
+
+---
+
+## French & European Emphasis
+
+France and the rest of Europe are a priority focus for this digest, on top of the standard regional balance below:
+
+- Treat **Europe as never a "sparse" dimension by default** — always run at least one dedicated France query and one broader EU-institutional query (European Commission, European Parliament, European Council) during landscape discovery, even before checking whether the dimension looks quiet.
+- When scoring borderline stories (importance 0.5–0.7), prefer including a French or European story over dropping it for space, as long as it independently clears the threshold — do not lower the bar itself, just resolve close calls in favor of French/European coverage.
+- Aim for at least two French-specific stories and at least three European stories (France counted separately) in the final digest when the news cycle supports it. If fewer are found, run one additional fallback query per missing slot before accepting a quiet day.
+- This emphasis does not relax the peer-region rule elsewhere: US, China, BRICS, Africa, Asia, South America, and Middle East must still each get their normal coverage — France/Europe get more depth, not the other regions' allotted space.
 
 ---
 
@@ -137,6 +148,8 @@ Field rules:
 
 - [ ] `daily-digest-research` skill loaded and followed
 - [ ] All eight regions were covered in the landscape discovery sweep
+- [ ] A dedicated France query and a dedicated EU-institutional query ran during landscape discovery
+- [ ] At least two French-specific and three European stories (France counted separately) are in the final digest, or a documented fallback query was run for each missing slot before accepting a quiet day
 - [ ] Cross-regional signals were identified and queried from each involved region's lens
 - [ ] All stories scoring ≥ 0.5 are included — no qualifying stories dropped
 - [ ] Each story has a concrete, verifiable outcome
