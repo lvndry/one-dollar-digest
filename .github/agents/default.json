@@ -5,7 +5,7 @@
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "z-ai/glm-5.3-flash",
+    "llmModel": "openrouter/free",
     "temperature": 0.4,
     "tools": [
       "web_search",

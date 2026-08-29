@@ -97,7 +97,7 @@ jobs:
           for attempt in $(seq 1 "$ATTEMPTS"); do
             echo "::group::tech-news attempt ${attempt}/${ATTEMPTS}"
             rm -f output/tech-news-*.json
-            if jazz --config ./jazz.config.json --output raw --max-duration-ms 1500000 --max-cost-usd 0.30 workflow run tech-news --auto-approve \
+            if jazz --config ./jazz.config.json --output raw workflow run tech-news --max-duration-ms 1500000 --max-cost-usd 0.30 --auto-approve \
               | tee /tmp/jazz-output.txt; then
               OUTPUT_FILE=$(find output -maxdepth 1 -name 'tech-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
               if [ -n "$OUTPUT_FILE" ]; then
@@ -234,7 +234,7 @@ jobs:
           for attempt in $(seq 1 "$ATTEMPTS"); do
             echo "::group::political-news attempt ${attempt}/${ATTEMPTS}"
             rm -f output/political-news-*.json
-            if jazz --config ./jazz.config.json --output raw --max-duration-ms 1500000 --max-cost-usd 0.30 workflow run political-news --auto-approve \
+            if jazz --config ./jazz.config.json --output raw workflow run political-news --max-duration-ms 1500000 --max-cost-usd 0.30 --auto-approve \
               | tee /tmp/jazz-output.txt; then
               OUTPUT_FILE=$(find output -maxdepth 1 -name 'political-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
               if [ -n "$OUTPUT_FILE" ]; then
@@ -371,7 +371,7 @@ jobs:
           for attempt in $(seq 1 "$ATTEMPTS"); do
             echo "::group::finance-news attempt ${attempt}/${ATTEMPTS}"
             rm -f output/finance-news-*.json
-            if jazz --config ./jazz.config.json --output raw --max-duration-ms 1500000 --max-cost-usd 0.30 workflow run finance-news --auto-approve \
+            if jazz --config ./jazz.config.json --output raw workflow run finance-news --max-duration-ms 1500000 --max-cost-usd 0.30 --auto-approve \
               | tee /tmp/jazz-output.txt; then
               OUTPUT_FILE=$(find output -maxdepth 1 -name 'finance-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
               if [ -n "$OUTPUT_FILE" ]; then
