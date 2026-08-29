@@ -79,17 +79,6 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
-      # Resolve the workflow output file by glob — the Jazz workflow does not
-      # always emit the exact "<category>-news-<DATE>.json" name, so look for
-      # the most recent "<category>-news-*.json" instead of a fixed path.
-      resolve_output() {
-        local cat="$1" pattern="output/${cat}-news-*.json" newest=""
-        for f in $pattern; do
-          [ -e "$f" ] || continue
-          if [ -z "$newest" ] || [ "$f" -nt "$newest" ]; then newest="$f"; fi
-        done
-        printf '%s' "$newest"
-      }
       - name: Configure Jazz API keys
         run: |
           jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
@@ -110,7 +99,7 @@ jobs:
             rm -f output/tech-news-*.json
             if jazz --config ./jazz.config.json --output raw workflow run tech-news --auto-approve \
               | tee /tmp/jazz-output.txt; then
-              OUTPUT_FILE=$(resolve_output "tech")
+              OUTPUT_FILE=$(find output -maxdepth 1 -name 'tech-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
               if [ -n "$OUTPUT_FILE" ]; then
                 echo "::endgroup::"
                 SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
@@ -133,7 +122,7 @@ jobs:
 
       - name: Insert articles into DB
         run: |
-          OUTPUT_FILE=$(resolve_output "tech")
+          OUTPUT_FILE=$(find output -maxdepth 1 -name 'tech-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
           if [ -z "$OUTPUT_FILE" ]; then
             echo "::error::No output file found for tech-news (workflow produced no articles)"
             exit 1
@@ -148,7 +137,7 @@ jobs:
       - name: Write job summary
         if: always()
         run: |
-          OUTPUT_FILE=$(resolve_output "tech")
+          OUTPUT_FILE=$(find output -maxdepth 1 -name 'tech-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
 
           COUNT=0
           if [ -f "$OUTPUT_FILE" ]; then
@@ -227,17 +216,6 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
-      # Resolve the workflow output file by glob — the Jazz workflow does not
-      # always emit the exact "<category>-news-<DATE>.json" name, so look for
-      # the most recent "<category>-news-*.json" instead of a fixed path.
-      resolve_output() {
-        local cat="$1" pattern="output/${cat}-news-*.json" newest=""
-        for f in $pattern; do
-          [ -e "$f" ] || continue
-          if [ -z "$newest" ] || [ "$f" -nt "$newest" ]; then newest="$f"; fi
-        done
-        printf '%s' "$newest"
-      }
       - name: Configure Jazz API keys
         run: |
           jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
@@ -258,7 +236,7 @@ jobs:
             rm -f output/political-news-*.json
             if jazz --config ./jazz.config.json --output raw workflow run political-news --auto-approve \
               | tee /tmp/jazz-output.txt; then
-              OUTPUT_FILE=$(resolve_output "political")
+              OUTPUT_FILE=$(find output -maxdepth 1 -name 'political-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
               if [ -n "$OUTPUT_FILE" ]; then
                 echo "::endgroup::"
                 SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
@@ -281,7 +259,7 @@ jobs:
 
       - name: Insert articles into DB
         run: |
-          OUTPUT_FILE=$(resolve_output "political")
+          OUTPUT_FILE=$(find output -maxdepth 1 -name 'political-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
           if [ -z "$OUTPUT_FILE" ]; then
             echo "::error::No output file found for political-news (workflow produced no articles)"
             exit 1
@@ -296,7 +274,7 @@ jobs:
       - name: Write job summary
         if: always()
         run: |
-          OUTPUT_FILE=$(resolve_output "political")
+          OUTPUT_FILE=$(find output -maxdepth 1 -name 'political-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
 
           COUNT=0
           if [ -f "$OUTPUT_FILE" ]; then
@@ -375,17 +353,6 @@ jobs:
             echo "DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
           fi
 
-      # Resolve the workflow output file by glob — the Jazz workflow does not
-      # always emit the exact "<category>-news-<DATE>.json" name, so look for
-      # the most recent "<category>-news-*.json" instead of a fixed path.
-      resolve_output() {
-        local cat="$1" pattern="output/${cat}-news-*.json" newest=""
-        for f in $pattern; do
-          [ -e "$f" ] || continue
-          if [ -z "$newest" ] || [ "$f" -nt "$newest" ]; then newest="$f"; fi
-        done
-        printf '%s' "$newest"
-      }
       - name: Configure Jazz API keys
         run: |
           jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
@@ -406,7 +373,7 @@ jobs:
             rm -f output/finance-news-*.json
             if jazz --config ./jazz.config.json --output raw workflow run finance-news --auto-approve \
               | tee /tmp/jazz-output.txt; then
-              OUTPUT_FILE=$(resolve_output "finance")
+              OUTPUT_FILE=$(find output -maxdepth 1 -name 'finance-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
               if [ -n "$OUTPUT_FILE" ]; then
                 echo "::endgroup::"
                 SUMMARY=$(grep '\[JAZZ_SUMMARY\]' /tmp/jazz-output.txt | tail -1 | sed 's/.*\[JAZZ_SUMMARY\] //')
@@ -429,7 +396,7 @@ jobs:
 
       - name: Insert articles into DB
         run: |
-          OUTPUT_FILE=$(resolve_output "finance")
+          OUTPUT_FILE=$(find output -maxdepth 1 -name 'finance-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
           if [ -z "$OUTPUT_FILE" ]; then
             echo "::error::No output file found for finance-news (workflow produced no articles)"
             exit 1
@@ -444,7 +411,7 @@ jobs:
       - name: Write job summary
         if: always()
         run: |
-          OUTPUT_FILE=$(resolve_output "finance")
+          OUTPUT_FILE=$(find output -maxdepth 1 -name 'finance-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
 
           COUNT=0
           if [ -f "$OUTPUT_FILE" ]; then
