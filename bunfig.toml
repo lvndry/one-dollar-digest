@@ -1,0 +1,5 @@
+[test]
+# Keep tests off the repo's real digest.db. Point libSQL at an isolated temp
+# file so any module that imports @/lib/db (auth, api-key, ingest tests) gets a
+# throwaway database instead of mutating local state.
+preload = ["./scripts/test-prelude.ts"]
