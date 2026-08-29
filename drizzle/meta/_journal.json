@@ -78,6 +78,13 @@
       "when": 1787955000000,
       "tag": "0011_sharp_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1787956000000,
+      "tag": "0012_recreate_articles_digest_date_primary_source_url_unique",
+      "breakpoints": true
     }
   ]
 }

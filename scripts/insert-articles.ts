@@ -7,6 +7,7 @@ import { fetchOgImages } from "./lib/og-image";
 import { ArticleArraySchema } from "./lib/article-schema";
 import { readFileSync, writeFileSync } from "fs";
 import { jsonrepair } from "jsonrepair";
+import { sql } from "drizzle-orm";
 
 function normalizeUrl(url: string | null): string | null {
   if (!url) return null;
@@ -60,12 +61,10 @@ if (!validation.success) {
 // Migration 0010 created the index but may have failed to record it properly in
 // __drizzle_migrations, causing "ON CONFLICT does not match UNIQUE constraint" errors.
 try {
-  await import("@/lib/db").then(async (m) => {
-    await m.db.execute(`
-      CREATE UNIQUE INDEX IF NOT EXISTS articles_digest_date_primary_source_url_unique
-      ON articles (digest_date, primary_source_url)
-    `);
-  });
+  await db.run(sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS articles_digest_date_primary_source_url_unique
+    ON articles (digest_date, primary_source_url)
+  `);
 } catch (e) {
   console.warn("[insert] Index repair skipped (non-fatal):", e);
 }
