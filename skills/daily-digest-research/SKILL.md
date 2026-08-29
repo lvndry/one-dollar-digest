@@ -159,21 +159,20 @@ output/<workflow-name>-<DIGEST_DATE>.json
 
 Example: `output/tech-news-2026-08-29.json`. (The CI step tolerates the legacy `output/tech-news-DIGEST_2026-08-29.json` name as a safety net, but the correct name is the resolved date.)
 
-Final objects must include the shared fields:
-
 ```json
 {
   "title": "Concise, specific headline — no clickbait, no editorial spin",
-  "summary": "Source-backed factual summary.",
-  "source": "Primary publication name",
-  "sources": [{ "name": "...", "url": "Canonical article URL" }],
-  "issueDate": "YYYY-MM-DD if known; omit if unavailable",
+  "summary": "Source-backed factual summary (3-5 sentences).",
+  "source": "REQUIRED. Extract from sources[0].name. Must be a non-empty string.",
+  "sources": [{ "name": "Publication name", "url": "https://..." }],
   "category": "tech | politics | finance",
   "publishedAt": "YYYY-MM-DD",
   "digestDate": "DIGEST_DATE",
-  "readingTimeMinutes": 3,
-  "importanceScore": 0.85
+  "importanceScore": 0.85,
+  "readingTimeMinutes": 3
 }
+```
+
 ```
 
 Only output valid JSON arrays in files.
@@ -218,3 +217,4 @@ Before finishing, verify:
 - [ ] Output file passes `jq . <output-file> >/dev/null` with exit code 0
 - [ ] The output file was written to `output/<workflow-name>-<DIGEST_DATE>.json`
 - [ ] The category-specific quality checklist (from `WORKFLOW.md`) is also satisfied
+```
