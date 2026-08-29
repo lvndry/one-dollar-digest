@@ -7,29 +7,43 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-export const articles = sqliteTable("articles", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  title: text("title").notNull(),
-  summary: text("summary").notNull(),
-  source: text("source").notNull(),
-  sources: text("sources"),
-  category: text("category", { enum: ["tech", "politics", "finance"] }).notNull(),
-  subcategory: text("subcategory"),
-  bias: text("bias", {
-    enum: ["far-left", "left", "center", "right", "far-right"],
+export const articles = sqliteTable(
+  "articles",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    title: text("title").notNull(),
+    summary: text("summary").notNull(),
+    source: text("source").notNull(),
+    sources: text("sources"),
+    category: text("category", { enum: ["tech", "politics", "finance"] }).notNull(),
+    subcategory: text("subcategory"),
+    // Canonical URL of the primary source. Backs the
+    // (digest_date, primary_source_url) unique index so re-runs of the
+    // ingest/insert pipeline skip duplicates idempotently.
+    primarySourceUrl: text("primary_source_url"),
+    bias: text("bias", {
+      enum: ["far-left", "left", "center", "right", "far-right"],
+    }),
+    publishedAt: text("published_at").notNull(),
+    readingTimeMinutes: integer("reading_time_minutes"),
+    importanceScore: real("importance_score"),
+    imageUrl: text("image_url"),
+    tags: text("tags"),
+    regions: text("regions"),
+    primaryRegion: text("primary_region"),
+    strategicInterpretation: text("strategic_interpretation"),
+    technicalSignificance: text("technical_significance"),
+    digestDate: text("digest_date").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => ({
+    // Idempotency key for ingest: one row per (date, primary source URL).
+    digestSourceUnique: uniqueIndex("articles_digest_date_primary_source_url_unique").on(
+      table.digestDate,
+      table.primarySourceUrl,
+    ),
   }),
-  publishedAt: text("published_at").notNull(),
-  readingTimeMinutes: integer("reading_time_minutes"),
-  importanceScore: real("importance_score"),
-  imageUrl: text("image_url"),
-  tags: text("tags"),
-  regions: text("regions"),
-  primaryRegion: text("primary_region"),
-  strategicInterpretation: text("strategic_interpretation"),
-  technicalSignificance: text("technical_significance"),
-  digestDate: text("digest_date").notNull(),
-  createdAt: text("created_at").notNull(),
-});
+);
 
 export type Article = typeof articles.$inferSelect;
 export type NewArticle = typeof articles.$inferInsert;
