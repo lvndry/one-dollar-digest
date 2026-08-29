@@ -50,6 +50,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Guard against unbounded request bodies consuming server memory.
+  const contentLength = Number(request.headers.get("content-length") ?? 0);
+  const MAX_INGEST_BYTES = 5 * 1024 * 1024; // 5 MiB
+  if (contentLength > MAX_INGEST_BYTES) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   let rows: Record<string, unknown>[];
   try {
     rows = (await request.json()) as Record<string, unknown>[];
@@ -130,6 +137,9 @@ export async function POST(request: NextRequest) {
         strategicInterpretation,
         technicalSignificance,
         digestDate,
+        // Idempotency key: canonical URL of the first source. Backs the
+        // (digest_date, primary_source_url) unique index so re-runs are no-ops.
+        primarySourceUrl: primarySource?.url ?? null,
         createdAt: optionalString(row.createdAt) ?? now,
       },
     ];
@@ -143,7 +153,14 @@ export async function POST(request: NextRequest) {
     return true;
   });
 
-  await db.insert(articles).values(deduped).onConflictDoNothing();
+  // Idempotent across runs: the (digest_date, primary_source_url) unique index
+  // makes a repeat insert a no-op instead of a duplicate row.
+  await db
+    .insert(articles)
+    .values(deduped)
+    .onConflictDoNothing({
+      target: [articles.digestDate, articles.primarySourceUrl],
+    });
 
   revalidateTag("articles", "default");
 

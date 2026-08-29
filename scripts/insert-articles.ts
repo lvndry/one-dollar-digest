@@ -153,6 +153,7 @@ const rows = parsed.flatMap((item, i) => {
       primaryRegion: item.primaryRegion ? String(item.primaryRegion) : null,
       strategicInterpretation,
       technicalSignificance,
+      primarySourceUrl: primarySource?.url ?? null,
       digestDate,
       createdAt: now,
     },
@@ -185,7 +186,12 @@ if (dedupedRows.length === 0) {
   process.exit(0);
 }
 
-const result = await db.insert(articles).values(dedupedRows).onConflictDoNothing();
+const result = await db
+  .insert(articles)
+  .values(dedupedRows)
+  .onConflictDoNothing({
+    target: [articles.digestDate, articles.primarySourceUrl],
+  });
 const inserted = result.rowsAffected;
 const skippedConflicts = dedupedRows.length - inserted;
 if (skippedConflicts > 0)
