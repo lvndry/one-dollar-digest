@@ -71,6 +71,13 @@
       "when": 1787953997725,
       "tag": "0010_lush_johnny_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1787955000000,
+      "tag": "0011_sharp_human_torch",
+      "breakpoints": true
     }
   ]
 }
