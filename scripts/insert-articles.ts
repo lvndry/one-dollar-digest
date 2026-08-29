@@ -56,6 +56,20 @@ if (!validation.success) {
   console.error(`[insert] Errors written to ${errorsFile}`);
   process.exit(1);
 }
+// Ensure the articles_digest_date_primary_source_url_unique index exists before inserts.
+// Migration 0010 created the index but may have failed to record it properly in
+// __drizzle_migrations, causing "ON CONFLICT does not match UNIQUE constraint" errors.
+try {
+  await import("@/lib/db").then(async (m) => {
+    await m.db.execute(`
+      CREATE UNIQUE INDEX IF NOT EXISTS articles_digest_date_primary_source_url_unique
+      ON articles (digest_date, primary_source_url)
+    `);
+  });
+} catch (e) {
+  console.warn("[insert] Index repair skipped (non-fatal):", e);
+}
+
 console.log(`[insert] Schema validation passed (${parsed.length} articles)`);
 
 const dateMatch = filePath.match(/(\d{4}-\d{2}-\d{2})(?:\.json)?$/i);
