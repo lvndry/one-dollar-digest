@@ -64,13 +64,13 @@ describe("api-key archive gate (api_key -> user.subscribed join)", () => {
     expect(await authenticateApiKeyFromRequest(req)).toEqual({ subscribed: true });
   });
 
-  test("denies archive access when the key's user is not subscribed", async () => {
+  test("authenticates a free key for today's API access", async () => {
     const userId = await seedUser(false);
     const key = await seedKey(userId);
     const req = new Request("https://example.com", {
       headers: { Authorization: `Bearer ${key}` },
     });
-    expect(await authenticateApiKeyFromRequest(req)).toBeNull();
+    expect(await authenticateApiKeyFromRequest(req)).toEqual({ subscribed: false });
   });
 
   test("denies archive access when the key is unknown", async () => {

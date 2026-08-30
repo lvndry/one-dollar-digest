@@ -1,6 +1,11 @@
 /// <reference types="bun-types" />
 import { afterAll, beforeAll, describe, expect, test, setSystemTime } from "bun:test";
-import { canAccessArchive, canAccessDigestDate, trialDaysRemaining } from "./access";
+import {
+  canAccessApiDigestDate,
+  canAccessArchive,
+  canAccessDigestDate,
+  trialDaysRemaining,
+} from "./access";
 import type { Session } from "next-auth";
 
 const TRIAL_MS = 3 * 24 * 60 * 60 * 1000;
@@ -86,6 +91,26 @@ describe("canAccessDigestDate", () => {
 
   test("past date is inaccessible with non-subscribed API key user", () => {
     expect(canAccessDigestDate("2024-01-01", null, { subscribed: false })).toBe(false);
+  });
+});
+
+describe("canAccessApiDigestDate", () => {
+  const today = FIXED_NOW.toISOString().split("T")[0]!;
+
+  test("requires a key even for today's free digest", () => {
+    expect(canAccessApiDigestDate(today, null)).toBe(false);
+  });
+
+  test("allows today's digest with a free API key", () => {
+    expect(canAccessApiDigestDate(today, { subscribed: false })).toBe(true);
+  });
+
+  test("denies archive access with a free API key", () => {
+    expect(canAccessApiDigestDate("2024-01-01", { subscribed: false })).toBe(false);
+  });
+
+  test("allows archive access with a Premium API key", () => {
+    expect(canAccessApiDigestDate("2024-01-01", { subscribed: true })).toBe(true);
   });
 });
 

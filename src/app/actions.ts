@@ -94,9 +94,6 @@ export async function getApiKeyStatus(): Promise<ApiKeyStatus> {
 export async function generateApiKey(): Promise<{ key: string } | { error: string }> {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
-  if (!session.user.subscribed) {
-    return { error: "An active subscription is required to generate an API key." };
-  }
 
   const key = generateApiKeyValue();
   const now = new Date();

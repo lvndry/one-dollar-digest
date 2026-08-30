@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { eq } from "drizzle-orm";
-import type { ApiKeyArchiveUser } from "@/lib/access";
+import type { ApiKeyUser } from "@/lib/access";
 import { db } from "@/lib/db";
 import { apiKeys, users } from "@/lib/schema";
 
@@ -31,7 +31,7 @@ export function extractApiKeyFromRequest(request: Request): string | null {
 
 export async function authenticateApiKeyFromRequest(
   request: Request,
-): Promise<ApiKeyArchiveUser | null> {
+): Promise<ApiKeyUser | null> {
   const key = extractApiKeyFromRequest(request);
   if (!key?.startsWith(API_KEY_PREFIX)) return null;
 
@@ -43,7 +43,7 @@ export async function authenticateApiKeyFromRequest(
     .where(eq(apiKeys.keyHash, keyHash))
     .limit(1);
 
-  const subscribed = rows[0]?.subscribed;
-  if (!subscribed) return null;
-  return { subscribed: true };
+  const row = rows[0];
+  if (!row) return null;
+  return { subscribed: row.subscribed ?? false };
 }

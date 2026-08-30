@@ -20,13 +20,6 @@ export function SiteFooter() {
       </span>
       <span className="flex items-center gap-4">
         <Link
-          href="/feed.xml"
-          className="font-ui text-[0.575rem] tracking-[0.08em] uppercase transition-opacity duration-150 hover:opacity-60"
-          style={{ color: "var(--ink-faint)" }}
-        >
-          RSS
-        </Link>
-        <Link
           href="/contact"
           className="font-ui text-[0.575rem] tracking-[0.08em] uppercase transition-opacity duration-150 hover:opacity-60"
           style={{ color: "var(--ink-faint)" }}
