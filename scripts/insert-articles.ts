@@ -138,7 +138,10 @@ console.log(`[insert] Got ${imageUrls.filter(Boolean).length}/${parsed.length} i
 
 const now = new Date().toISOString();
 
+const PUBLISHED_AT_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
 let skippedNoUrl = 0;
+let skippedNoPublishedDate = 0;
 const rows = parsed.flatMap((item, i) => {
   const canonicalSources = validatedSources[i] ?? [];
   const primarySource = canonicalSources[0];
@@ -159,6 +162,11 @@ const rows = parsed.flatMap((item, i) => {
     skippedNoUrl++;
     return [];
   }
+  const publishedAt = optionalString(item.publishedAt);
+  if (!publishedAt || !PUBLISHED_AT_PATTERN.test(publishedAt)) {
+    skippedNoPublishedDate++;
+    return [];
+  }
 
   return [
     {
@@ -175,7 +183,7 @@ const rows = parsed.flatMap((item, i) => {
           | "center"
           | "right"
           | "far-right") ?? null,
-      publishedAt: item.publishedAt ? String(item.publishedAt) : digestDate,
+      publishedAt,
       readingTimeMinutes: item.readingTimeMinutes
         ? Number(item.readingTimeMinutes)
         : null,
@@ -195,6 +203,10 @@ const rows = parsed.flatMap((item, i) => {
 
 if (skippedNoUrl > 0)
   console.log(`[insert] Skipped ${skippedNoUrl} articles with no canonical source URLs`);
+if (skippedNoPublishedDate > 0)
+  console.log(
+    `[insert] Skipped ${skippedNoPublishedDate} articles with no verified publication date`,
+  );
 
 // Deduplicate within the batch by normalized title before hitting the DB
 const seenTitles = new Set<string>();
@@ -214,7 +226,12 @@ if (dedupedRows.length === 0) {
   console.log(`[insert] No articles to insert for ${digestDate} — all duplicates`);
   writeFileSync(
     "/tmp/insert-stats.json",
-    JSON.stringify({ inserted: 0, skippedNoUrl, skippedDuplicates }),
+    JSON.stringify({
+      inserted: 0,
+      skippedNoUrl,
+      skippedOffDate: skippedNoPublishedDate,
+      skippedDuplicates,
+    }),
   );
   process.exit(0);
 }
@@ -234,7 +251,12 @@ console.log(
 );
 writeFileSync(
   "/tmp/insert-stats.json",
-  JSON.stringify({ inserted, skippedNoUrl, skippedDuplicates }),
+  JSON.stringify({
+    inserted,
+    skippedNoUrl,
+    skippedOffDate: skippedNoPublishedDate,
+    skippedDuplicates,
+  }),
 );
 
 const revalidateUrl = process.env.REVALIDATE_URL;
