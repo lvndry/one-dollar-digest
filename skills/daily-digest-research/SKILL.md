@@ -18,8 +18,6 @@ This skill is mandatory shared policy for every One Dollar Digest workflow. Cate
 
 The coordinator does **not** research. It plans, fans out to **one fully-independent subagent per coverage dimension**, then merges. Each subagent owns its dimension **end to end** — discovery, targeted queries, fetch-and-read, one bounded deepen pass, and a final **candidate JSON** payload. Subagents run in parallel. The coordinator's only jobs are: merge, de-duplicate, score-gate, and serialize.
 
-This keeps a single category run well under 30 minutes: N small parallel subagents (each a few minutes) instead of one agent doing N dimensions serially with an unbounded loop. Every child handoff is schema-validated, so consolidation works from evidence packets rather than trying to recover data from prose.
-
 ## CI Operating Mode
 
 You are running inside an automated CI pipeline. No user is present and no one will respond. Complete the workflow from start to finish without asking for confirmation or approval.
