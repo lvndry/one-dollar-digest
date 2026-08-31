@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { authenticateApiKeyFromRequest } from "@/lib/api-key";
-import { canAccessDigestDate } from "@/lib/access";
-import { serializeArchivePaywallMarkdown } from "@/lib/article-markdown";
+import {
+  apiAccessDeniedResponse,
+  apiResponseHeaders,
+  requireApiKey,
+} from "@/lib/api-access";
 import { digestTodayIso, getCachedArticlesForDigestDate } from "@/lib/digest-day";
 import { serializeDigestToMarkdown } from "@/lib/digest-markdown";
 
 function getBaseUrl(): string {
   return process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com";
 }
-
-const MARKDOWN_HEADERS = {
-  "Content-Type": "text/markdown; charset=utf-8",
-} as const;
 
 function resolveDigestDateParam(date: string): string | null {
   if (date === "today") return digestTodayIso();
@@ -24,6 +21,9 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ date: string }> },
 ) {
+  const authentication = await requireApiKey(request);
+  if ("response" in authentication) return authentication.response;
+
   const { date: dateParam } = await params;
   const digestDate = resolveDigestDateParam(dateParam);
 
@@ -31,23 +31,15 @@ export async function GET(
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const session = await auth();
-  const apiKeyUser = await authenticateApiKeyFromRequest(request);
-  const baseUrl = getBaseUrl();
-
-  if (!canAccessDigestDate(digestDate, session, apiKeyUser)) {
-    return new NextResponse(serializeArchivePaywallMarkdown(!!session?.user, baseUrl), {
-      status: 403,
-      headers: MARKDOWN_HEADERS,
-    });
-  }
+  const denied = apiAccessDeniedResponse(digestDate, authentication.apiKeyUser);
+  if (denied) return denied;
 
   const rows = await getCachedArticlesForDigestDate(digestDate);
   if (rows.length === 0) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  return new NextResponse(serializeDigestToMarkdown(rows, digestDate, baseUrl), {
-    headers: MARKDOWN_HEADERS,
+  return new NextResponse(serializeDigestToMarkdown(rows, digestDate, getBaseUrl()), {
+    headers: apiResponseHeaders("text/markdown; charset=utf-8"),
   });
 }

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getApiKeyStatus, createCheckoutSession } from "@/app/actions";
@@ -14,7 +13,6 @@ export default async function AccountPage() {
   if (!session?.user) redirect("/login");
 
   const apiKeyStatus = await getApiKeyStatus();
-  const showApiKeySection = session.user.subscribed || apiKeyStatus.prefix !== null;
 
   return (
     <div
@@ -69,24 +67,10 @@ export default async function AccountPage() {
             ) : null}
           </section>
 
-          {showApiKeySection ? (
-            <>
-              <div className="h-px" style={{ backgroundColor: "var(--border)" }} />
-              <ApiKeySection
-                initialStatus={apiKeyStatus}
-                canGenerate={session.user.subscribed}
-              />
-            </>
-          ) : (
-            <section>
-              <p className="font-ui text-[0.75rem]" style={{ color: "var(--ink-faint)" }}>
-                API keys are available to paid subscribers.{" "}
-                <Link href="/" className="underline underline-offset-2">
-                  Back to today&apos;s digest
-                </Link>
-              </p>
-            </section>
-          )}
+          <>
+            <div className="h-px" style={{ backgroundColor: "var(--border)" }} />
+            <ApiKeySection initialStatus={apiKeyStatus} />
+          </>
         </div>
       </div>
     </div>

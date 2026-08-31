@@ -60,8 +60,8 @@ export function ApiKeySection({ initialStatus, canGenerate = true }: ApiKeySecti
         className="font-ui text-[0.75rem] leading-relaxed mb-6 max-w-xl"
         style={{ color: "var(--ink-muted)" }}
       >
-        Use your API key to fetch archive digests and articles from scripts or agents.
-        Today&apos;s content stays public without a key.
+        API keys are required for scripts and AI agents. Free keys can access today&apos;s
+        digest; Premium keys can also access the archive.
       </p>
 
       {status.prefix ? (
@@ -156,9 +156,7 @@ export function ApiKeySection({ initialStatus, canGenerate = true }: ApiKeySecti
       >
         <p className="mb-2">Example:</p>
         <p>curl -H &quot;Authorization: Bearer YOUR_KEY&quot; \</p>
-        <p className="pl-4">
-          https://www.onedollardigest.com/api/articles?date=2026-01-15
-        </p>
+        <p className="pl-4">https://www.onedollardigest.com/api/articles?date=today</p>
       </div>
     </section>
   );

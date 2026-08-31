@@ -1,8 +1,10 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { authenticateApiKeyFromRequest } from "@/lib/api-key";
-import { canAccessDigestDate } from "@/lib/access";
+import {
+  apiAccessDeniedResponse,
+  apiResponseHeaders,
+  requireApiKey,
+} from "@/lib/api-access";
 import { digestTodayIso, getCachedArticlesForDigestDate } from "@/lib/digest-day";
 import { buildRssFeed } from "@/lib/rss";
 
@@ -28,35 +30,28 @@ function resolveDigestDateParam(date: string | null): string | null {
 }
 
 export async function GET(request: Request) {
+  const authentication = await requireApiKey(request);
+  if ("response" in authentication) return authentication.response;
+
   const url = new URL(request.url);
   const digestDate = resolveDigestDateParam(url.searchParams.get("date"));
 
   if (!digestDate) {
+    const denied = apiAccessDeniedResponse(digestTodayIso(), authentication.apiKeyUser);
+    if (denied) return denied;
     const xml = await getCachedTodayRss();
     return new NextResponse(xml, {
-      headers: {
-        "Content-Type": "application/rss+xml; charset=utf-8",
-        "Cache-Control": "public, max-age=3600",
-      },
+      headers: apiResponseHeaders("application/rss+xml; charset=utf-8"),
     });
   }
 
-  const session = await auth();
-  const apiKeyUser = await authenticateApiKeyFromRequest(request);
-
-  if (!canAccessDigestDate(digestDate, session, apiKeyUser)) {
-    return new NextResponse("Archive access requires a subscription or API key.", {
-      status: 403,
-    });
-  }
+  const denied = apiAccessDeniedResponse(digestDate, authentication.apiKeyUser);
+  if (denied) return denied;
 
   const rows = await getCachedArticlesForDigestDate(digestDate);
   const xml = buildRssFeed(rows, getBaseUrl());
 
   return new NextResponse(xml, {
-    headers: {
-      "Content-Type": "application/rss+xml; charset=utf-8",
-      "Cache-Control": "private, no-store",
-    },
+    headers: apiResponseHeaders("application/rss+xml; charset=utf-8"),
   });
 }

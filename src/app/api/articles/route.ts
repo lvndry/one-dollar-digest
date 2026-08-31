@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { authenticateApiKeyFromRequest } from "@/lib/api-key";
-import { canAccessDigestDate } from "@/lib/access";
+import {
+  apiAccessDeniedResponse,
+  apiResponseHeaders,
+  requireApiKey,
+} from "@/lib/api-access";
 import { digestTodayIso } from "@/lib/digest-day";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/schema";
@@ -15,6 +17,9 @@ function resolveDigestDateParam(date: string | null): string | null {
 }
 
 export async function GET(request: Request) {
+  const authentication = await requireApiKey(request);
+  if ("response" in authentication) return authentication.response;
+
   const url = new URL(request.url);
   const digestDate = resolveDigestDateParam(url.searchParams.get("date"));
 
@@ -22,15 +27,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid date parameter" }, { status: 400 });
   }
 
-  const session = await auth();
-  const apiKeyUser = await authenticateApiKeyFromRequest(request);
-
-  if (!canAccessDigestDate(digestDate, session, apiKeyUser)) {
-    return NextResponse.json(
-      { error: "Archive access requires a subscription or API key." },
-      { status: 403 },
-    );
-  }
+  const denied = apiAccessDeniedResponse(digestDate, authentication.apiKeyUser);
+  if (denied) return denied;
 
   try {
     const rows = await db
@@ -39,8 +37,8 @@ export async function GET(request: Request) {
       .where(eq(articles.digestDate, digestDate))
       .orderBy(desc(articles.importanceScore));
 
-    return NextResponse.json(rows);
+    return NextResponse.json(rows, { headers: apiResponseHeaders() });
   } catch {
-    return NextResponse.json([]);
+    return NextResponse.json([], { headers: apiResponseHeaders() });
   }
 }

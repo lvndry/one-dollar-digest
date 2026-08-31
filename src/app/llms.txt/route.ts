@@ -19,9 +19,6 @@ async function buildLlmsTxt(): Promise<string> {
 > AI-curated daily news covering technology, politics, and finance. Clearly sourced, $1/month for archive access.
 
 ## Feeds
-- RSS: ${base}/feed.xml
-- Today's digest (Markdown): ${base}/digest/today.md
-- Articles API (JSON, today): ${base}/api/articles
 - Sitemap: ${base}/sitemap.xml
 
 ## Pages
@@ -31,27 +28,22 @@ async function buildLlmsTxt(): Promise<string> {
 - Finance: ${base}/finance
 - Archive navigation: append ?date=YYYY-MM-DD to any digest page
 
-## Article URLs
-- Markdown: ${base}/article/{id}.md
-- HTML: ${base}/article/{id}
+## Agent API
+All programmatic content access requires an API key. Create a free key at ${base}/account.
+Never place an API key in a URL or expose it in browser-side code.
 
-## Today's digest
-- Markdown: ${base}/digest/${today}.md
-- HTML: ${base}/?date=${today}
-
-## Access
-Today's digest is free. Historical digests require a subscription or trial.
-
-Paid subscribers can generate an API key at ${base}/account for programmatic archive access.
-Send the key with either header:
+Send it with this header:
 - Authorization: Bearer odd_...
-- X-API-Key: odd_...
 
-Archive endpoints (require key or logged-in access):
-- Markdown digest: ${base}/digest/YYYY-MM-DD.md
+Free API keys can retrieve today's digest (${today}) only. Premium API keys can retrieve the full archive.
+
+Endpoints:
+- JSON articles: ${base}/api/articles?date=today
+- Markdown digest: ${base}/digest/today.md
 - Markdown article: ${base}/article/{id}.md
-- JSON articles: ${base}/api/articles?date=YYYY-MM-DD
-- RSS archive: ${base}/feed.xml?date=YYYY-MM-DD
+- RSS: ${base}/feed.xml?date=today
+
+Replace today with YYYY-MM-DD to request a specific digest. A free key receives 403 for historical dates; upgrade at ${base}/account for archive access.
 `;
 }
 
