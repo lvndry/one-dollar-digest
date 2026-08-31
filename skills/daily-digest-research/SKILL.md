@@ -146,14 +146,15 @@ Dates in the query text are a hint. Dates in the tool arguments are the filter.
 
 ### 2b — Fetch and read
 
-Treat a search result URL as a **lead**, not as a source URL. For every promising result, fetch the full article with `web_fetch` or `http_request`, following redirects. Keep the final URL only when it returns a usable 2xx article page. Prefer the page's canonical URL when it is present, but fetch that canonical URL too before keeping it.
+Treat a search result URL as a **lead**, not as a source URL. For every promising result, fetch the full article with `web_fetch` or `http_request`, following redirects, so you can read and extract from it. Record the URL you fetched as both `requestedUrl` and `url`, and set `sourceStatus` to whatever you honestly observed (`2xx`, `redirected-to-2xx`, `unverified`, or `failed`).
 
-Do not keep search, feed, share, AMP, tracking, short-link, homepage, topic-list, or `/404` URLs. If the fetch redirects to a 404, a login wall, or a non-article page, find the publisher's stable permalink or a primary source; otherwise drop the candidate. Record the original fetched URL as `requestedUrl` and the verified permanent URL as `url`.
+Final link validity is not your call to make: the pipeline resolves every source URL through its own deterministic redirect-follower before anything is stored, and that resolver — not your read of the fetch — decides what survives. Don't drop a candidate just because a fetch looked uncertain (a paywall snippet, a redirect you couldn't fully confirm, a login wall on an otherwise real article); record it honestly and let the pipeline's resolver make the final call. Do skip a result that is obviously not an article at all — a bare search/feed page, a homepage, or a topic-list with nothing to read.
 
 Then extract:
 
 - The core claim or announcement (one sentence)
 - Key facts with concrete evidence: numbers, names, dates, outcomes
+- The article's actual publication date — read it from the byline, a `datePublished`/timestamp meta tag, or the URL's date path (for example `/2026/08/24/...`). Never guess or substitute today's date; if the page genuinely has no discoverable date, say so in `confidence` rather than inventing one.
 - Who is affected and in what way — including the institutions that must now act, absorb, or decide
 - The strategic decision this continues, reverses, or forces
 - Prior context the announcement sits on, and any referenced primary sources not yet fetched
@@ -201,9 +202,9 @@ Set `needsDeepening: false` before returning — the single deepen pass in 2c is
 
 Collect every subagent's candidate array. Run this pass in order:
 
-1. Drop every candidate where `publishedAt` < `SELECT_FROM_DATE`.
-2. Drop candidates with `publishedAt` > `DIGEST_DATE`, or with no verifiable `publishedAt` and no `sources` that returned 2xx.
-3. Keep only sources whose `sourceStatus` is `2xx` or `redirected-to-2xx`; replace their `url` with the verified final canonical permalink, then normalize it (https scheme, strip leading `www.`, strip `utm_*`, `fbclid`, `gclid`, `ref`, trim trailing slash).
+1. Drop every candidate where `publishedAt` < `SELECT_FROM_DATE`, or where `publishedAt` is missing, empty, or not a real date read from a source. There is no exception for this — a candidate with no verified publication date is indistinguishable from a stale story wearing today's date, so it does not ship. Do not let the pipeline's own fallback (which stamps an undated article with `DIGEST_DATE`) do this check for you.
+2. Drop candidates with `publishedAt` > `DIGEST_DATE`.
+3. Normalize each source `url` (https scheme, strip leading `www.`, strip `utm_*`, `fbclid`, `gclid`, `ref`, trim trailing slash). Do not drop a source here for its `sourceStatus` — the pipeline's own link resolver, not this pass, is the final word on whether a URL is live.
 4. Merge rows that share a normalized source URL or clearly describe the same event into one entry with a combined `sources` array, sorted by source quality and confidence.
 5. Leave no two final candidates sharing a normalized source URL.
 
@@ -293,9 +294,10 @@ If you edit the output file while working through this list, restart from the to
 - [ ] Every subagent did its own discovery and fetch-and-read
 - [ ] Every candidate had at most one deepen pass, spent on the surrounding story rather than more headlines
 - [ ] All candidates covering the same event were merged into one entry
+- [ ] Every final entry's `publishedAt` was read from a source (byline, timestamp, or dated URL path), never guessed or left to default to `DIGEST_DATE`
 - [ ] `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` for every final entry
 - [ ] No two final entries share a normalized source URL
-- [ ] Every final `sources[].url` is a verified final canonical permalink, not a discovery or redirect URL
+- [ ] Every final `sources[].url` is the URL you actually fetched, normalized — canonicalization and final link validity are the pipeline's job, not this pass's
 - [ ] Each story has concrete numbers or verifiable outcomes
 - [ ] Summaries are factual, precise, and hype-free
 - [ ] Every factual sentence came from the event's approved-claims ledger
