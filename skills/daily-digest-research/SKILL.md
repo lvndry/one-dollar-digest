@@ -18,7 +18,7 @@ This skill is mandatory shared policy for every One Dollar Digest workflow. Cate
 
 The coordinator does **not** research. It plans, fans out to **one fully-independent subagent per coverage dimension**, then merges. Each subagent owns its dimension **end to end** — discovery, targeted queries, fetch-and-read, one bounded deepen pass, and a final **candidate JSON** payload. Subagents run in parallel. The coordinator's only jobs are: merge, de-duplicate, score-gate, and serialize.
 
-This keeps a single category run well under 30 minutes: N small parallel subagents (each a few minutes) instead of one agent doing N dimensions serially with an unbounded loop.
+This keeps a single category run well under 30 minutes: N small parallel subagents (each a few minutes) instead of one agent doing N dimensions serially with an unbounded loop. Every child handoff is schema-validated, so consolidation works from evidence packets rather than trying to recover data from prose.
 
 ## CI Operating Mode
 
@@ -54,6 +54,59 @@ List every coverage dimension defined by the category `WORKFLOW.md`. For each di
 - The category's importance threshold and any tag/region/bias rules that apply to this dimension.
 - The exact output schema (shared fields + category-specific fields).
 - The instruction: "Return candidate JSON only (array of objects). Do your own discovery, targeted queries, fetch-and-read, and ONE bounded deepen pass. Do not ask the coordinator for more work."
+
+Call `spawn_subagent` with `resultName: "research candidates"` and a `resultSchema` whose root is the following object. Read candidates from the child's `structuredResult.candidates`; never parse a candidate list from its text `summary`.
+
+```json
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["candidates"],
+  "properties": {
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "candidateTitle",
+          "coreClaimOneSentence",
+          "keyFacts",
+          "sources",
+          "publishedAt",
+          "importanceScore",
+          "subcategory",
+          "tags",
+          "needsDeepening"
+        ],
+        "properties": {
+          "candidateTitle": { "type": "string" },
+          "coreClaimOneSentence": { "type": "string" },
+          "keyFacts": { "type": "array", "items": { "type": "string" }, "minItems": 2 },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["name", "url", "sourceStatus", "confidence"],
+              "properties": {
+                "name": { "type": "string" },
+                "url": { "type": "string" },
+                "sourceStatus": { "type": "string" },
+                "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+              }
+            }
+          },
+          "publishedAt": { "type": "string" },
+          "importanceScore": { "type": "number", "minimum": 0, "maximum": 1 },
+          "subcategory": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "needsDeepening": { "type": "boolean", "enum": [false] }
+        }
+      }
+    }
+  }
+}
+```
 
 Do **not** run discovery searches in the coordinator. Discovery belongs to the subagents.
 
@@ -96,26 +149,30 @@ For candidates where confidence is `low` or a primary source is referenced but n
 
 ### Step 2d — Return shape
 
-Return only a JSON array of candidates, each:
+Return the following as the `result` field of Jazz's required JSON envelope. The text `summary` is for the coordinator's progress log only; the coordinator uses the validated `result.candidates` data.
 
 ```json
 {
-  "candidateTitle": "Working title",
-  "coreClaimOneSentence": "The core fact in one sentence",
-  "keyFacts": ["fact with who/what/where/outcome", "fact with evidence"],
-  "sources": [
+  "candidates": [
     {
-      "name": "Publication or primary source",
-      "url": "Fetched URL",
-      "sourceStatus": "2xx | redirected-to-2xx | unverified | failed",
-      "confidence": "high | medium | low"
+      "candidateTitle": "Working title",
+      "coreClaimOneSentence": "The core fact in one sentence",
+      "keyFacts": ["fact with who/what/where/outcome", "fact with evidence"],
+      "sources": [
+        {
+          "name": "Publication or primary source",
+          "url": "Fetched URL",
+          "sourceStatus": "2xx | redirected-to-2xx | unverified | failed",
+          "confidence": "high | medium | low"
+        }
+      ],
+      "publishedAt": "YYYY-MM-DD",
+      "importanceScore": 0.85,
+      "subcategory": "the dimension / bucket this belongs to",
+      "tags": ["..."],
+      "needsDeepening": false
     }
-  ],
-  "publishedAt": "YYYY-MM-DD",
-  "importanceScore": 0.85,
-  "subcategory": "the dimension / bucket this belongs to",
-  "tags": ["..."],
-  "needsDeepening": false
+  ]
 }
 ```
 
@@ -135,6 +192,14 @@ Collect all subagent candidate arrays. Run this deterministic pass:
 
 The LLM dedup responsibility is the model's job before output; this pass is the deterministic backbone.
 
+Then create an **approved-claims ledger** for every merged event before drafting an article. A claim is approved only when it is directly supported by a fetched, successful source in that event's `sources` list. Preserve the source URL(s) beside each claim and separate:
+
+- verified facts: events, figures, dates, quoted decisions, and observed outcomes;
+- contextual facts: relevant earlier events only when fetched and directly relevant; and
+- interpretation: a conditional inference based only on approved facts.
+
+Do not promote a source's speculation, a search snippet, or an unverified detail into the ledger. This ledger is working data, not a final output field.
+
 ---
 
 ## Phase 4 — Select, score, validate (coordinator, light)
@@ -144,6 +209,8 @@ Apply the category's importance threshold (include every story ≥ threshold; do
 - Each story has a non-empty `sources` array with canonical URLs (prefer primary sources).
 - Each story has concrete numbers or verifiable outcomes.
 - No two final entries describe the same underlying event.
+
+For each kept event, draft from its approved-claims ledger, not from the raw research transcript. The factual `summary` may use only approved verified or contextual facts. The category-specific analysis (`technicalSignificance` or `strategicInterpretation`) may connect those facts to the wider day’s approved events, but must label causal or forward-looking reasoning as interpretation with words such as "may", "could", or "signals". Do not invent a motive, counter-move, market reaction, or second-order effect merely because it sounds plausible.
 
 Do **not** re-fetch URLs here — subagents already fetched and validated them in 2b. If a source URL is `unverified`/`failed` and no working canonical source can be found, drop the story.
 
@@ -179,7 +246,7 @@ Only output valid JSON arrays in files.
 
 ### Summary writing rules
 
-The `summary` field is the primary analytical payload. Adapt depth to story type (research paper, product launch, security incident, funding, policy, executive move, geopolitical decision). Shared rules:
+The `summary` field is the factual editorial payload. Adapt depth to story type (research paper, product launch, security incident, funding, policy, executive move, geopolitical decision). Shared rules:
 
 - First sentence = the core fact (who did what, with what concrete result).
 - Second sentence = the key number, consequence, or technical detail.
@@ -187,13 +254,17 @@ The `summary` field is the primary analytical payload. Adapt depth to story type
 - No opinion adjectives ("controversial", "surprising", "game-changing", "stunning").
 - Do not assert as fact anything that reached the final article with `confidence: low` — use "reportedly", "according to", or "unconfirmed".
 
+The category-specific analysis is the strategic payload. It may be up to **two short paragraphs**: first explain the immediate strategic significance from approved facts; second, when useful, make a clearly hedged inference about incentives, constraints, leverage, or second-order effects across the day’s events. Omit the second paragraph when it would only restate the facts. Never use analysis to smuggle in unsupported factual claims.
+
 ---
 
-## Phase 6 — JSON Serialization (final step)
+## Phase 6 — Consolidation and JSON serialization (final step)
 
-After all merging and scoring, call `spawn_subagent` with a focused JSON-serializer task: convert the final article list into a valid JSON array matching the exact schema; output ONLY the JSON array (no markdown fences, no prose); write it to the output file; verify with `jq . <output-file> >/dev/null` (must exit 0).
+After all merging, scoring, and claim approval, call `spawn_subagent` with a focused **consolidation editor** task. Give it the selected events and their approved-claims ledgers; it must not research or add factual claims. Its job is to synthesize the final factual summaries and category-specific strategic analysis, using the entire selected digest when that context is useful.
 
-A fresh subagent with short context produces structurally correct JSON at high reliability. This is the one allowed extra round-trip and is counted in the time budget.
+Pass `resultName: "digest articles"` and a `resultSchema` whose root object has one required `articles` property: the exact category-specific article array schema. The child returns `{ "articles": [...] }` as its validated structured result; the coordinator writes `structuredResult.articles` to the output file and verifies with `jq . <output-file> >/dev/null` (must exit 0). Do not recover the JSON array from the child's text summary.
+
+This is the one allowed extra round-trip and is counted in the time budget. The fresh, bounded editor improves synthesis without reopening the research loop.
 
 ---
 
@@ -205,7 +276,7 @@ Before finishing, verify:
 
 - [ ] Phase 0 ran and `DIGEST_DATE` is confirmed
 - [ ] `SEARCH_FROM_DATE` is two calendar days before `DIGEST_DATE`
-- [ ] One subagent was spawned per coverage dimension, all in parallel
+- [ ] One subagent was spawned per coverage dimension, all in parallel, with a `resultSchema`
 - [ ] Every subagent did its own discovery + fetch-and-read (not snippets)
 - [ ] Every candidate had **at most one** deepen pass (no repeat loop)
 - [ ] All candidates covering the same event were merged into one entry
@@ -214,6 +285,9 @@ Before finishing, verify:
 - [ ] Every final `sources[].url` was fetched and validated by its subagent
 - [ ] Each story has concrete numbers or verifiable outcomes
 - [ ] Summaries are factual, precise, hype-free
+- [ ] Every factual sentence came from the event's approved-claims ledger
+- [ ] Strategic analysis is grounded, clearly hedged where interpretive, and no longer than two short paragraphs
+- [ ] A consolidation editor received the approved-claims ledgers and returned the validated final article array
 - [ ] Output file passes `jq . <output-file> >/dev/null` with exit code 0
 - [ ] The output file was written to `output/<workflow-name>-<DIGEST_DATE>.json`
 - [ ] The category-specific quality checklist (from `WORKFLOW.md`) is also satisfied

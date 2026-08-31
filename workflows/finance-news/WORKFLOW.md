@@ -83,7 +83,7 @@ Write the full JSON array to `output/finance-news-DIGEST_DATE.json`. Each story 
     }
   ],
   "tags": ["Rates", "Inflation", ...],
-  "technicalSignificance": "1-3 sentences on what this means for investors, businesses, or the broader economy. Distinguish interpretation from verified fact. Focus on second-order effects: what does this signal, pressure, or accelerate?"
+  "technicalSignificance": "One or two short paragraphs on what the approved facts mean for investors, businesses, or the broader economy. The first explains the immediate significance; the optional second makes a clearly hedged inference about second-order effects across the day's events."
 }
 ```
 
@@ -92,7 +92,7 @@ Field rules:
 - **`subcategory`**: exactly one primary editorial bucket from the dimension list.
 - **`sources`**: non-empty array. Include at least one primary source with canonical `url`.
 - **`tags`**: non-empty array of short strings; max 4. Use the suggested tags or invent better ones — the goal is cross-cutting descriptors that add information beyond the subcategory.
-- **`technicalSignificance`**: required for every story. Clearly separate interpretation from fact.
+- **`technicalSignificance`**: required for every story. Use one or two short paragraphs. Clearly separate interpretation from fact; every factual statement must come from that event's approved-claims ledger, and use "may", "could", or "signals" for inferences.
 
 ---
 

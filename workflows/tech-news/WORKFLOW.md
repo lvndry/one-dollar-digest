@@ -93,7 +93,7 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each story mus
     }
   ],
   "tags": ["AI", "Infrastructure", ...],
-  "technicalSignificance": "1-3 sentences on what this means for developers, the industry, or the market. Distinguish interpretation from verified fact. Focus on second-order effects: what does this enable, displace, or accelerate?"
+  "technicalSignificance": "One or two short paragraphs on what the approved facts mean for developers, the industry, or the market. The first explains the immediate significance; the optional second makes a clearly hedged inference about second-order effects across the day's events."
 }
 ```
 
@@ -102,7 +102,7 @@ Field rules:
 - **`subcategory`**: exactly one primary editorial bucket from the dimension list.
 - **`sources`**: non-empty array. Include at least one primary source with canonical `url`;
 - **`tags`**: non-empty array of short strings; max 4. Use the suggested tags or invent better ones — the goal is cross-cutting descriptors that add information beyond the subcategory.
-- **`technicalSignificance`**: required for every story. Clearly separate interpretation from fact.
+- **`technicalSignificance`**: required for every story. Use one or two short paragraphs. Clearly separate interpretation from fact; every factual statement must come from that event's approved-claims ledger, and use "may", "could", or "signals" for inferences.
 
 ---
 
