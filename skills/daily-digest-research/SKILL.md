@@ -1,59 +1,73 @@
 ---
 name: daily-digest-research
 description: Shared operating policy for One Dollar Digest Jazz workflows. Use when running or authoring scheduled digest workflows that gather articles, validate sources, and write digest JSON.
-tagline: Deep research policy for scheduled One Dollar Digest workflows.
-triggers:
-  - daily digest
-  - digest workflow
-  - DIGEST_DATE
-  - SEARCH_FROM_DATE
-  - SELECT_FROM_DATE
 ---
 
-# Daily Digest Workflow — Deep Research (Bounded Divide & Conquer)
+# Daily Digest Research
 
-This skill is mandatory shared policy for every One Dollar Digest workflow. Category-specific `WORKFLOW.md` instructions extend this policy; they do not replace it.
+## Goal
 
-## Design principle: real divide & conquer
+Ship a source-backed daily digest: a valid JSON array of the day's most important stories, each grounded in fetched primary sources, written as fact first and interpretation second. The reader should walk away knowing what happened, which institutions it moves, what decision it continues or forces, and why it matters — without hype, speculation dressed as news, or yesterday's leftovers.
 
-The coordinator does **not** research. It plans, fans out to **one fully-independent subagent per coverage dimension**, then merges. Each subagent owns its dimension **end to end** — discovery, targeted queries, fetch-and-read, one bounded deepen pass, and a final **candidate JSON** payload. Subagents run in parallel. The coordinator's only jobs are: merge, de-duplicate, score-gate, and serialize.
+Success is a file at `output/<workflow-name>-<DIGEST_DATE>.json` that `jq` accepts, that the category `WORKFLOW.md` would recognize as its own, and that a skeptical editor could defend sentence by sentence.
 
-## CI Operating Mode
+## Strategy
 
-You are running inside an automated CI pipeline. No user is present and no one will respond. Complete the workflow from start to finish without asking for confirmation or approval.
+Coverage is a set of independent research problems. The category `WORKFLOW.md` names the dimensions; this skill owns how to work them.
 
-Cost & time are hard-capped by the caller (Jazz `--timeout` + `--json` costUSD gate, and a GitHub job `timeout-minutes`). Respect them: do not re-run dimensions to chase completeness. Return what you have.
+1. **Orient** — lock the date window so discovery is wide and selection is tight.
+2. **Fan out** — hand each dimension to one self-contained investigator that discovers the event, reads the sources, digs once for the surrounding story, and returns candidate JSON.
+3. **Compose** — merge overlapping events, keep only what the date and score gates allow, and build an approved-claims ledger before anyone writes copy.
+4. **Edit** — a fresh consolidation pass turns those ledgers into the final articles.
+
+The coordinator is the editor-in-chief: it plans the assignments, waits for every desk, then merges and serializes. Each subagent is a full investigator for its beat — discovery through candidate payload — so the fan-out actually buys parallelism instead of a queue of half-finished notes.
+
+Cost and time are hard-capped by the caller (Jazz `--timeout` + `--json` costUSD gate, and a GitHub job `timeout-minutes`). The strategy is to spend that budget once, in parallel, and return what the desks produced.
+
+## Mindset
+
+You are an investigator. Today's headline is the lead, not the case.
+
+**Facts are never isolated.** A filing, a vote, a launch, a rate decision — each sits inside a story: prior moves, unfinished fights, institutions that now have to respond, people who just lost or gained leverage. Recording the announcement alone produces a clipping. The job is understanding.
+
+**A day's news does not tell the whole story.** Ask what the fact is doing in the world. Who decided, and what were they choosing between? Which institution is now constrained, exposed, or empowered? What earlier event does this continue, reverse, or pretend not to notice? That surrounding story is why you search a little earlier than you select, and why you fetch the referenced primary instead of stopping at the recap.
+
+**Dig until you understand, then write.** Discovery finds the event. Reading the page confirms it. The deepen pass recovers context: the last decision by the same institution, the other party in the deal, the rule this changes, the filing the announcement cites. Spend that pass on understanding, not on another lap around similar headlines.
+
+**Source what you claim.** Context is still evidence. Fetch the prior action, the statute, the earnings call, the last vote. Inference is allowed once those facts are in hand, and it must sound like inference. Speculation that was never fetched stays out of the ledger.
+
+You are also running unattended in CI. Finish. A digest that understood fewer stories beats a second research loop that misses the job timeout.
 
 ---
 
-## Phase 0 — Environment Setup
+## Phase 0 — Orient the date window
 
-Run this command first:
+Run this first:
 
 ```sh
 echo ${TARGET_DATE:-$(date -u +%Y-%m-%d)}
 ```
 
-Store the output as `DIGEST_DATE`. Compute two date bounds:
+Store the output as `DIGEST_DATE`. Compute two bounds:
 
-- `SEARCH_FROM_DATE` = two calendar days before `DIGEST_DATE` (`T-2`). Used as `fromDate` in all `web_search` calls — this wider window ensures discovery lags don't cause stories to be missed.
+- `SEARCH_FROM_DATE` = two calendar days before `DIGEST_DATE` (`T-2`). Pass this as `fromDate` on every `web_search` so discovery lags do not hide a story.
 - `SELECT_FROM_DATE` = one calendar day before `DIGEST_DATE` (`T-1`). This is the hard lower bound for the final output.
 
-**Hard date rule:** Any article whose `publishedAt` is before `SELECT_FROM_DATE` must be discarded from the final output — regardless of importance score, significance, or how few articles a dimension produced. There are no exceptions. The wider `SEARCH_FROM_DATE` window is for search only; it never relaxes the selection cutoff.
+Any article whose `publishedAt` is before `SELECT_FROM_DATE` leaves the digest — regardless of score, significance, or how thin a dimension looks. The wider search window is for finding, not for selecting.
 
 ---
 
-## Phase 1 — Plan the fan-out (coordinator, cheap)
+## Phase 1 — Plan the fan-out
 
-List every coverage dimension defined by the category `WORKFLOW.md`. For each dimension write **one self-contained task** to hand to a subagent. The task must include:
+List every coverage dimension in the category `WORKFLOW.md`. For each one, write a self-contained task that includes:
 
 - The dimension name and its editorial scope.
 - `DIGEST_DATE`, `SEARCH_FROM_DATE`, `SELECT_FROM_DATE`.
-- The category's importance threshold and any tag/region/bias rules that apply to this dimension.
+- The category's importance threshold and any tag, region, or bias rules that apply to this dimension.
 - The exact output schema (shared fields + category-specific fields).
-- The instruction: "Return candidate JSON only (array of objects). Do your own discovery, targeted queries, fetch-and-read, and ONE bounded deepen pass. Do not ask the coordinator for more work."
+- The instruction: "Return candidate JSON only (array of objects). Investigate the dimension end to end: discovery, targeted queries, fetch-and-read, and ONE deepen pass aimed at the surrounding story (institutions, prior decisions, referenced primaries)."
 
-Call `spawn_subagent` with `resultName: "research candidates"` and a `resultSchema` whose root is the following object. Read candidates from the child's `structuredResult.candidates`; never parse a candidate list from its text `summary`.
+Call `spawn_subagent` with `resultName: "research candidates"` and a `resultSchema` whose root is the object below. Read candidates from the child's `structuredResult.candidates`. The text `summary` is a progress log, not a data source.
 
 ```json
 {
@@ -106,17 +120,17 @@ Call `spawn_subagent` with `resultName: "research candidates"` and a `resultSche
 }
 ```
 
-Do **not** run discovery searches in the coordinator. Discovery belongs to the subagents.
+Discovery searches belong on the desks, so each dimension is researched against the live web rather than against the coordinator's first pass.
 
 ---
 
-## Phase 2 — Parallel per-dimension subagents
+## Phase 2 — Run one researcher per dimension
 
-Spawn **one subagent per dimension**, all in parallel. Each subagent follows this internal sequence and returns a JSON array of candidates:
+Spawn **one subagent per dimension**, all in parallel. Each follows this sequence and returns a JSON array of candidates.
 
-### Step 2a — Discovery + targeted queries
+### 2a — Discover, then aim
 
-Run 2–3 broad discovery searches for the dimension, then 3–5 targeted queries built from what surfaced. Every `web_search` call must pass date arguments as top-level tool arguments:
+Run 2–3 broad discovery searches for the dimension, then 3–5 targeted queries built from what surfaced. Every `web_search` call passes dates as top-level tool arguments:
 
 ```json
 {
@@ -127,27 +141,26 @@ Run 2–3 broad discovery searches for the dimension, then 3–5 targeted querie
 }
 ```
 
-Do not rely on putting dates only in query text.
+Dates in the query text are a hint. Dates in the tool arguments are the filter.
 
-### Step 2b — Fetch and read content
+### 2b — Fetch and read
 
-For every promising result, fetch the full article using `web_fetch` or `http_request`. **Do not rely on search result snippets.** Read the actual page. Extract:
+For every promising result, fetch the full article with `web_fetch` or `http_request`. Extract:
 
 - The core claim or announcement (one sentence)
 - Key facts with concrete evidence: numbers, names, dates, outcomes
-- Who is affected and in what way
-- Any referenced primary sources not yet fetched
-- Confidence level: `high` | `medium` | `low`
+- Who is affected and in what way — including the institutions that must now act, absorb, or decide
+- The strategic decision this continues, reverses, or forces
+- Prior context the announcement sits on, and any referenced primary sources not yet fetched
+- Confidence: `high` | `medium` | `low`
 
-### Step 2c — ONE bounded deepen pass (hard cap)
+### 2c — Deepen once, for understanding
 
-For candidates where confidence is `low` or a primary source is referenced but not fetched, run **at most one follow-up round** of queries and fetch the referenced primary source. Update `keyFacts`, `sources`, `confidence`.
+Run **one** follow-up round when confidence is `low`, a primary source is cited but unfetched, or the surrounding story is still missing — which institution moved, which prior decision this sits on, who else is in the room. Fetch those sources. Update `keyFacts`, `sources`, and `confidence`. Then stop. If confidence is still `low`, hedge the summary or drop the candidate. The pass exists to gain understanding, not to collect more headlines.
 
-**Stop after one round.** Do not loop. If confidence is still `low` after the single pass, either hedge the summary (use "reportedly", "according to") or drop the candidate — never loop again.
+### 2d — Return shape
 
-### Step 2d — Return shape
-
-Return the following as the `result` field of Jazz's required JSON envelope. The text `summary` is for the coordinator's progress log only; the coordinator uses the validated `result.candidates` data.
+Return this as the `result` field of Jazz's required JSON envelope. The coordinator uses the validated `result.candidates` data.
 
 ```json
 {
@@ -174,55 +187,55 @@ Return the following as the `result` field of Jazz's required JSON envelope. The
 }
 ```
 
-Set `needsDeepening: false` before returning — the single deepen pass in 2c is the only one allowed.
+Set `needsDeepening: false` before returning — the single deepen pass in 2c is the only one this workflow allows.
 
 ---
 
-## Phase 3 — Merge & de-duplicate (coordinator)
+## Phase 3 — Merge and de-duplicate
 
-Collect all subagent candidate arrays. Run this deterministic pass:
+Collect every subagent's candidate array. Run this pass in order:
 
-1. Discard every candidate where `publishedAt` < `SELECT_FROM_DATE` (date gate — run first).
-2. Discard candidates with `publishedAt` > `DIGEST_DATE` or no verifiable `publishedAt` and no `sources` with a 2xx status.
-3. Normalize every `sources[].url` (https scheme, remove leading `www.`, strip `utm_*`, `fbclid`, `gclid`, `ref`, trim trailing slash).
-4. Merge any rows that share a normalized source URL or clearly describe the same event into one entry with a combined `sources` array sorted by source quality/confidence.
-5. Ensure no two final candidates share a normalized source URL.
+1. Drop every candidate where `publishedAt` < `SELECT_FROM_DATE`.
+2. Drop candidates with `publishedAt` > `DIGEST_DATE`, or with no verifiable `publishedAt` and no `sources` that returned 2xx.
+3. Normalize every `sources[].url` (https scheme, strip leading `www.`, strip `utm_*`, `fbclid`, `gclid`, `ref`, trim trailing slash).
+4. Merge rows that share a normalized source URL or clearly describe the same event into one entry with a combined `sources` array, sorted by source quality and confidence.
+5. Leave no two final candidates sharing a normalized source URL.
 
-The LLM dedup responsibility is the model's job before output; this pass is the deterministic backbone.
+The model still judges "same event"; this pass is the deterministic backbone.
 
-Then create an **approved-claims ledger** for every merged event before drafting an article. A claim is approved only when it is directly supported by a fetched, successful source in that event's `sources` list. Preserve the source URL(s) beside each claim and separate:
+Then create an **approved-claims ledger** for every merged event before drafting. A claim is approved only when a fetched, successful source in that event's `sources` list directly supports it. Keep the source URL(s) beside each claim and separate:
 
-- verified facts: events, figures, dates, quoted decisions, and observed outcomes;
-- contextual facts: relevant earlier events only when fetched and directly relevant; and
-- interpretation: a conditional inference based only on approved facts.
+- **verified facts** — events, figures, dates, quoted decisions, observed outcomes
+- **contextual facts** — earlier events, institutional positions, and prior decisions only when fetched and directly relevant
+- **interpretation** — a conditional inference based only on approved facts: who is now constrained or empowered, what the decision forces next
 
-Do not promote a source's speculation, a search snippet, or an unverified detail into the ledger. This ledger is working data, not a final output field.
+A source's speculation, a search snippet, or an unverified detail does not enter the ledger. The ledger is working data, not a final output field.
 
 ---
 
-## Phase 4 — Select, score, validate (coordinator, light)
+## Phase 4 — Select, score, and draft from the ledger
 
-Apply the category's importance threshold (include every story ≥ threshold; do not drop qualifying stories to hit a count). Re-verify:
+Apply the category's importance threshold: include every story at or above it. Re-verify:
 
 - Each story has a non-empty `sources` array with canonical URLs (prefer primary sources).
 - Each story has concrete numbers or verifiable outcomes.
 - No two final entries describe the same underlying event.
 
-For each kept event, draft from its approved-claims ledger, not from the raw research transcript. The factual `summary` may use only approved verified or contextual facts. The category-specific analysis (`technicalSignificance` or `strategicInterpretation`) may connect those facts to the wider day’s approved events, but must label causal or forward-looking reasoning as interpretation with words such as "may", "could", or "signals". Do not invent a motive, counter-move, market reaction, or second-order effect merely because it sounds plausible.
+Draft each kept event from its approved-claims ledger, not from the raw research transcript. The factual `summary` may use only approved verified or contextual facts. Category-specific analysis (`technicalSignificance` or `strategicInterpretation`) may connect those facts to the wider day's approved events; label causal or forward-looking reasoning as interpretation with words such as "may", "could", or "signals".
 
-Do **not** re-fetch URLs here — subagents already fetched and validated them in 2b. If a source URL is `unverified`/`failed` and no working canonical source can be found, drop the story.
+Subagents already fetched and validated URLs in 2b, so this phase does not re-fetch. If a source is `unverified` or `failed` and no working canonical source exists, drop the story.
 
 ---
 
-## Phase 5 — Output
+## Phase 5 — Write the output file
 
-Write the full JSON array to the category-specific output file using the **resolved date**, not the template token:
+Write the full JSON array to the category-specific path using the **resolved date**:
 
 ```text
 output/<workflow-name>-<DIGEST_DATE>.json
 ```
 
-Example: `output/tech-news-2026-08-29.json`. (The CI step tolerates the legacy `output/tech-news-DIGEST_2026-08-29.json` name as a safety net, but the correct name is the resolved date.)
+Example: `output/tech-news-2026-08-29.json`. CI still accepts the legacy `output/tech-news-DIGEST_2026-08-29.json` name as a safety net; the correct name is the resolved date.
 
 ```json
 {
@@ -238,55 +251,50 @@ Example: `output/tech-news-2026-08-29.json`. (The CI step tolerates the legacy `
 }
 ```
 
-```
+Write only a valid JSON array to the file.
 
-Only output valid JSON arrays in files.
+### Summary writing
 
-### Summary writing rules
-
-The `summary` field is the factual editorial payload. Adapt depth to story type (research paper, product launch, security incident, funding, policy, executive move, geopolitical decision). Shared rules:
+The `summary` is the factual editorial payload. Adapt depth to story type (research paper, product launch, security incident, funding, policy, executive move, geopolitical decision):
 
 - First sentence = the core fact (who did what, with what concrete result).
 - Second sentence = the key number, consequence, or technical detail.
 - Remaining sentences = source-backed context, affected parties, and anything uncertain resolved as fact or flagged unconfirmed.
-- No opinion adjectives ("controversial", "surprising", "game-changing", "stunning").
-- Do not assert as fact anything that reached the final article with `confidence: low` — use "reportedly", "according to", or "unconfirmed".
+- Skip opinion adjectives ("controversial", "surprising", "game-changing", "stunning").
+- A claim that arrived with `confidence: low` stays hedged: "reportedly", "according to", or "unconfirmed".
 
-The category-specific analysis is the strategic payload. It may be up to **two short paragraphs**: first explain the immediate strategic significance from approved facts; second, when useful, make a clearly hedged inference about incentives, constraints, leverage, or second-order effects across the day’s events. Omit the second paragraph when it would only restate the facts. Never use analysis to smuggle in unsupported factual claims.
-
----
-
-## Phase 6 — Consolidation and JSON serialization (final step)
-
-After all merging, scoring, and claim approval, call `spawn_subagent` with a focused **consolidation editor** task. Give it the selected events and their approved-claims ledgers; it must not research or add factual claims. Its job is to synthesize the final factual summaries and category-specific strategic analysis, using the entire selected digest when that context is useful.
-
-Pass `resultName: "digest articles"` and a `resultSchema` whose root object has one required `articles` property: the exact category-specific article array schema. The child returns `{ "articles": [...] }` as its validated structured result; the coordinator writes `structuredResult.articles` to the output file and verifies with `jq . <output-file> >/dev/null` (must exit 0). Do not recover the JSON array from the child's text summary.
-
-This is the one allowed extra round-trip and is counted in the time budget. The fresh, bounded editor improves synthesis without reopening the research loop.
+The category-specific analysis is the strategic payload. It may be up to **two short paragraphs**: first the immediate strategic significance from approved facts; second, when useful, a clearly hedged inference about incentives, constraints, leverage, or second-order effects across the day's events. Omit the second paragraph when it would only restate the facts. Analysis does not carry unsupported factual claims.
 
 ---
 
-## Shared Quality Checklist
+## Phase 6 — Consolidate and serialize
 
-**Loop rule:** If you make any edit to the output file while working through this checklist, restart the checklist from the top. Only declare the workflow complete when you pass every item without further changes.
+After merging, scoring, and claim approval, call `spawn_subagent` with a focused **consolidation editor** task. Give it the selected events and their approved-claims ledgers. Its job is to synthesize the final factual summaries and category-specific strategic analysis, using the entire selected digest when that context is useful. It does not research or add factual claims.
 
-Before finishing, verify:
+Pass `resultName: "digest articles"` and a `resultSchema` whose root object has one required `articles` property: the exact category-specific article array schema. The child returns `{ "articles": [...] }` as its validated structured result. The coordinator writes `structuredResult.articles` to the output file and verifies with `jq . <output-file> >/dev/null` (must exit 0). Recover the array from the structured result, not from the child's text summary.
+
+This is the one allowed extra round-trip and it counts against the time budget. A fresh, bounded editor improves synthesis without reopening research.
+
+---
+
+## Quality checklist
+
+If you edit the output file while working through this list, restart from the top. The workflow is complete only when every item passes without a further change.
 
 - [ ] Phase 0 ran and `DIGEST_DATE` is confirmed
 - [ ] `SEARCH_FROM_DATE` is two calendar days before `DIGEST_DATE`
 - [ ] One subagent was spawned per coverage dimension, all in parallel, with a `resultSchema`
-- [ ] Every subagent did its own discovery + fetch-and-read (not snippets)
-- [ ] Every candidate had **at most one** deepen pass (no repeat loop)
+- [ ] Every subagent did its own discovery and fetch-and-read
+- [ ] Every candidate had at most one deepen pass, spent on the surrounding story rather than more headlines
 - [ ] All candidates covering the same event were merged into one entry
-- [ ] `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` for every final entry (no exceptions)
+- [ ] `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` for every final entry
 - [ ] No two final entries share a normalized source URL
 - [ ] Every final `sources[].url` was fetched and validated by its subagent
 - [ ] Each story has concrete numbers or verifiable outcomes
-- [ ] Summaries are factual, precise, hype-free
+- [ ] Summaries are factual, precise, and hype-free
 - [ ] Every factual sentence came from the event's approved-claims ledger
 - [ ] Strategic analysis is grounded, clearly hedged where interpretive, and no longer than two short paragraphs
 - [ ] A consolidation editor received the approved-claims ledgers and returned the validated final article array
 - [ ] Output file passes `jq . <output-file> >/dev/null` with exit code 0
 - [ ] The output file was written to `output/<workflow-name>-<DIGEST_DATE>.json`
-- [ ] The category-specific quality checklist (from `WORKFLOW.md`) is also satisfied
-```
+- [ ] The category-specific quality checklist from `WORKFLOW.md` is also satisfied

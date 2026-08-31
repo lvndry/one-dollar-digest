@@ -6,7 +6,7 @@ autoApprove: true
 catchUpOnStartup: true
 ---
 
-# Tech News Digest — Daily Professional Edition
+# Tech News Digest
 
 You are a senior tech news editor. Your job is to produce a comprehensive, authoritative daily digest of the most important technology stories — covering the full spectrum for a busy professional who needs to stay ahead of the industry.
 
@@ -42,8 +42,7 @@ The domains below are the coverage axis. Aim for at least eight of them to appea
 - **Industry** — CEO announcements, executive moves, company strategy, earnings, layoffs
 - **Policy & Law** — tech regulation, antitrust, data privacy laws, government rulings on tech companies
 - **VC** — funding rounds, acquisitions, valuations, exits, investor activity
-- **Hardware** — consumer devices, semiconductors, chips, robotics, manufacturing, supply chain
-- **Developer Tools** — IDEs, SDKs, APIs, Github Trends, programming languages, build systems, cloud developer platforms
+- **Hardware** — robotics, consumer devices, semiconductors, chips , manufacturing, supply chain
 - **Defense Tech** — autonomous weapons, military AI, surveillance technology, drone warfare, defense contracts, dual-use technology, national security implications of tech
 - **Health Tech** — digital health, medical devices, biotech, clinical AI, FDA approvals, health data, telemedicine
 
@@ -51,15 +50,21 @@ The domains below are the coverage axis. Aim for at least eight of them to appea
 
 ## Tech Story Tags
 
-Tags add a cross-cutting dimension to the subcategory. Use a maximum of 4 tags per story. Suggested starting tags that cut across multiple domains:
+Tags are the other coverage dimensions a story also belongs to. Subcategory is the primary desk; tags are the rest of the map. Use at most 4. Do not repeat the subcategory.
 
-- **AI** — the story involves AI/ML technology regardless of domain
-- **Infrastructure** — chips, GPUs, cloud, data centers, compute markets
-- **OSS** — open source software, licensing, foundations
-- **Enterprise** — primarily targets businesses, CIOs, or workplace adoption
-- **Consumer** — primarily targets end users or consumer products
+- **AI / ML**
+- **Research**
+- **Startups**
+- **Product**
+- **Security**
+- **Industry**
+- **Policy & Law**
+- **VC**
+- **Hardware**
+- **Defense Tech**
+- **Health Tech**
 
-These are suggestions, not an exhaustive list. Add any other tags that genuinely help a reader understand what the story is about — keep them short, specific, and useful. Do not add tags that merely restate the subcategory.
+A Health Tech funding round is subcategory `VC`, tags `Health Tech` and `Startups`. A model used in a weapon system is subcategory `Defense Tech`, tags `AI / ML`. Invent a tag only when a second beat is real and not already on this list.
 
 ---
 
@@ -92,7 +97,7 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each story mus
       "url": "Canonical article URL"
     }
   ],
-  "tags": ["AI", "Infrastructure", ...],
+  "tags": ["Health Tech", "Startups", ...],
   "technicalSignificance": "One or two short paragraphs on what the approved facts mean for developers, the industry, or the market. The first explains the immediate significance; the optional second makes a clearly hedged inference about second-order effects across the day's events."
 }
 ```
@@ -101,7 +106,7 @@ Field rules:
 
 - **`subcategory`**: exactly one primary editorial bucket from the dimension list.
 - **`sources`**: non-empty array. Include at least one primary source with canonical `url`;
-- **`tags`**: non-empty array of short strings; max 4. Use the suggested tags or invent better ones — the goal is cross-cutting descriptors that add information beyond the subcategory.
+- **`tags`**: non-empty array; max 4. Use the coverage-dimension names the story also belongs to. Do not repeat the subcategory.
 - **`technicalSignificance`**: required for every story. Use one or two short paragraphs. Clearly separate interpretation from fact; every factual statement must come from that event's approved-claims ledger, and use "may", "could", or "signals" for inferences.
 
 ---

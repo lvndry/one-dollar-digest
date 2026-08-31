@@ -1,6 +1,6 @@
 ---
 name: finance-news
-description: Daily finance and markets news digest — deep research across Markets, Macro, Central Banks, Earnings, M&A, Crypto, Commodities, and Personal Finance
+description: Daily finance and markets news digest — deep research across Markets, Macro, Central Banks, Earnings, M&A, Crypto, Commodities (gold, copper, oil, and other metals and energy), and Personal Finance
 schedule: "0 7 * * *"
 autoApprove: true
 catchUpOnStartup: true
@@ -34,22 +34,25 @@ The domains below are the coverage axis. Aim for at least six of them to appear 
 - **Earnings** — corporate earnings reports, guidance, analyst reactions
 - **M&A** — mergers, acquisitions, buyouts, spinoffs, activist investor campaigns
 - **Crypto** — cryptocurrency markets, regulation, major protocol or exchange news
-- **Commodities** — oil, gas, metals, agricultural commodities, energy markets
+- **Commodities** — gold, copper, silver, other metals, oil, gas, agricultural commodities, energy markets
 - **Personal Finance** — retirement, taxes, consumer credit, housing, savings trends relevant to a broad professional audience
 
 ---
 
 ## Finance Story Tags
 
-Tags add a cross-cutting dimension to the subcategory. Use a maximum of 4 tags per story. Suggested starting tags that cut across multiple domains:
+Tags are the other coverage dimensions a story also belongs to. Subcategory is the primary desk; tags are the rest of the map. Use at most 4. Do not repeat the subcategory.
 
-- **Rates** — interest rate policy or expectations
-- **Inflation** — inflation data or inflation-driven decisions
-- **Volatility** — sharp market moves, risk-off/risk-on sentiment
-- **Regulation** — financial regulation, enforcement actions, compliance
-- **Global** — cross-border or multi-region financial impact
+- **Markets**
+- **Macro**
+- **Central Banks**
+- **Earnings**
+- **M&A**
+- **Crypto**
+- **Commodities**
+- **Personal Finance**
 
-These are suggestions, not an exhaustive list. Add any other tags that genuinely help a reader understand what the story is about — keep them short, specific, and useful. Do not add tags that merely restate the subcategory.
+A gold sell-off after a Fed cut is subcategory `Commodities`, tags `Central Banks` and `Markets`. A bank's deal financed with crypto is subcategory `M&A`, tags `Crypto`. Invent a tag only when a second beat is real and not already on this list.
 
 ---
 
@@ -82,7 +85,7 @@ Write the full JSON array to `output/finance-news-DIGEST_DATE.json`. Each story 
       "url": "Canonical article URL"
     }
   ],
-  "tags": ["Rates", "Inflation", ...],
+  "tags": ["Central Banks", "Commodities", ...],
   "technicalSignificance": "One or two short paragraphs on what the approved facts mean for investors, businesses, or the broader economy. The first explains the immediate significance; the optional second makes a clearly hedged inference about second-order effects across the day's events."
 }
 ```
@@ -91,7 +94,7 @@ Field rules:
 
 - **`subcategory`**: exactly one primary editorial bucket from the dimension list.
 - **`sources`**: non-empty array. Include at least one primary source with canonical `url`.
-- **`tags`**: non-empty array of short strings; max 4. Use the suggested tags or invent better ones — the goal is cross-cutting descriptors that add information beyond the subcategory.
+- **`tags`**: non-empty array; max 4. Use the coverage-dimension names the story also belongs to. Do not repeat the subcategory.
 - **`technicalSignificance`**: required for every story. Use one or two short paragraphs. Clearly separate interpretation from fact; every factual statement must come from that event's approved-claims ledger, and use "may", "could", or "signals" for inferences.
 
 ---
