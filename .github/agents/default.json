@@ -5,7 +5,7 @@
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "openrouter/free",
+    "llmModel": "inclusionai/ling-3.0-flash",
     "temperature": 0.4,
     "tools": [
       "web_search",
