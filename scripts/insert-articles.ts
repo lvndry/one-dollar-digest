@@ -5,6 +5,7 @@ import { articles } from "@/lib/schema";
 import { buildImageSourceCandidates } from "./lib/image-source-candidates";
 import { fetchOgImages } from "./lib/og-image";
 import { ArticleArraySchema } from "./lib/article-schema";
+import { resolvePermanentSourceUrls } from "./lib/source-links";
 import { readFileSync, writeFileSync } from "fs";
 import { jsonrepair } from "jsonrepair";
 import { sql } from "drizzle-orm";
@@ -84,9 +85,33 @@ function serializeMetadataField(value: unknown): string | null {
 }
 
 const normalizedSources = parsed.map((item) => normalizeArticleSources(item));
-const imageSourceCandidates = parsed.map((item) =>
+const sourceUrls = normalizedSources.flatMap((sources) =>
+  sources.flatMap((source) => {
+    const url = normalizeUrl(source.url ?? null);
+    return url ? [url] : [];
+  }),
+);
+console.log(`[insert] Validating ${new Set(sourceUrls).size} source links…`);
+const resolvedSourceUrls = await resolvePermanentSourceUrls(sourceUrls);
+const validatedSources = normalizedSources.map((sources) =>
+  sources.flatMap((source) => {
+    const requestedUrl = normalizeUrl(source.url ?? null);
+    const resolvedUrl = requestedUrl ? resolvedSourceUrls.get(requestedUrl) : null;
+    if (!resolvedUrl) return [];
+    const url = normalizeUrl(resolvedUrl);
+    if (!url) return [];
+    return [
+      {
+        ...source,
+        url,
+        sourceStatus: url === requestedUrl ? "2xx" : "redirected-to-2xx",
+      },
+    ];
+  }),
+);
+const imageSourceCandidates = validatedSources.map((sources) =>
   buildImageSourceCandidates({
-    sources: item.sources,
+    sources,
   }),
 );
 
@@ -115,12 +140,7 @@ const now = new Date().toISOString();
 
 let skippedNoUrl = 0;
 const rows = parsed.flatMap((item, i) => {
-  const sources = normalizedSources[i] ?? [];
-  const canonicalSources = sources.flatMap((source) => {
-    const url = normalizeUrl(source.url ?? null);
-    if (!url) return [];
-    return [{ ...source, url }];
-  });
+  const canonicalSources = validatedSources[i] ?? [];
   const primarySource = canonicalSources[0];
   const parsedCategory = parseCategory(item.category);
   if (!parsedCategory)

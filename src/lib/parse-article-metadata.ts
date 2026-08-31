@@ -15,6 +15,8 @@ export interface ArticleSource {
   name: string;
   url: string | null;
   bias?: string | null;
+  sourceStatus?: string | null;
+  confidence?: string | null;
 }
 
 export interface ArticleSourceFallback {
@@ -69,6 +71,8 @@ export function normalizeArticleSources(row: Record<string, unknown>): ArticleSo
           name,
           url: optionalString(source.url),
           bias: optionalString(source.bias),
+          sourceStatus: optionalString(source.sourceStatus),
+          confidence: optionalString(source.confidence),
         },
       ];
     });
@@ -109,6 +113,14 @@ export function parseArticleSources(
           name,
           url: typeof item.url === "string" && item.url.trim() ? item.url : null,
           bias: typeof item.bias === "string" && item.bias.trim() ? item.bias : null,
+          sourceStatus:
+            typeof item.sourceStatus === "string" && item.sourceStatus.trim()
+              ? item.sourceStatus
+              : null,
+          confidence:
+            typeof item.confidence === "string" && item.confidence.trim()
+              ? item.confidence
+              : null,
         },
       ];
     });

@@ -99,9 +99,10 @@ Call `spawn_subagent` with `resultName: "research candidates"` and a `resultSche
             "minItems": 1,
             "items": {
               "type": "object",
-              "required": ["name", "url", "sourceStatus", "confidence"],
+              "required": ["name", "requestedUrl", "url", "sourceStatus", "confidence"],
               "properties": {
                 "name": { "type": "string" },
+                "requestedUrl": { "type": "string" },
                 "url": { "type": "string" },
                 "sourceStatus": { "type": "string" },
                 "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
@@ -145,7 +146,11 @@ Dates in the query text are a hint. Dates in the tool arguments are the filter.
 
 ### 2b — Fetch and read
 
-For every promising result, fetch the full article with `web_fetch` or `http_request`. Extract:
+Treat a search result URL as a **lead**, not as a source URL. For every promising result, fetch the full article with `web_fetch` or `http_request`, following redirects. Keep the final URL only when it returns a usable 2xx article page. Prefer the page's canonical URL when it is present, but fetch that canonical URL too before keeping it.
+
+Do not keep search, feed, share, AMP, tracking, short-link, homepage, topic-list, or `/404` URLs. If the fetch redirects to a 404, a login wall, or a non-article page, find the publisher's stable permalink or a primary source; otherwise drop the candidate. Record the original fetched URL as `requestedUrl` and the verified permanent URL as `url`.
+
+Then extract:
 
 - The core claim or announcement (one sentence)
 - Key facts with concrete evidence: numbers, names, dates, outcomes
@@ -172,7 +177,8 @@ Return this as the `result` field of Jazz's required JSON envelope. The coordina
       "sources": [
         {
           "name": "Publication or primary source",
-          "url": "Fetched URL",
+          "requestedUrl": "Discovery or initially fetched URL",
+          "url": "Verified final canonical permalink",
           "sourceStatus": "2xx | redirected-to-2xx | unverified | failed",
           "confidence": "high | medium | low"
         }
@@ -197,7 +203,7 @@ Collect every subagent's candidate array. Run this pass in order:
 
 1. Drop every candidate where `publishedAt` < `SELECT_FROM_DATE`.
 2. Drop candidates with `publishedAt` > `DIGEST_DATE`, or with no verifiable `publishedAt` and no `sources` that returned 2xx.
-3. Normalize every `sources[].url` (https scheme, strip leading `www.`, strip `utm_*`, `fbclid`, `gclid`, `ref`, trim trailing slash).
+3. Keep only sources whose `sourceStatus` is `2xx` or `redirected-to-2xx`; replace their `url` with the verified final canonical permalink, then normalize it (https scheme, strip leading `www.`, strip `utm_*`, `fbclid`, `gclid`, `ref`, trim trailing slash).
 4. Merge rows that share a normalized source URL or clearly describe the same event into one entry with a combined `sources` array, sorted by source quality and confidence.
 5. Leave no two final candidates sharing a normalized source URL.
 
@@ -217,7 +223,7 @@ A source's speculation, a search snippet, or an unverified detail does not enter
 
 Apply the category's importance threshold: include every story at or above it. Re-verify:
 
-- Each story has a non-empty `sources` array with canonical URLs (prefer primary sources).
+- Each story has a non-empty `sources` array of verified permanent URLs (prefer primary sources).
 - Each story has concrete numbers or verifiable outcomes.
 - No two final entries describe the same underlying event.
 
@@ -289,7 +295,7 @@ If you edit the output file while working through this list, restart from the to
 - [ ] All candidates covering the same event were merged into one entry
 - [ ] `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` for every final entry
 - [ ] No two final entries share a normalized source URL
-- [ ] Every final `sources[].url` was fetched and validated by its subagent
+- [ ] Every final `sources[].url` is a verified final canonical permalink, not a discovery or redirect URL
 - [ ] Each story has concrete numbers or verifiable outcomes
 - [ ] Summaries are factual, precise, and hype-free
 - [ ] Every factual sentence came from the event's approved-claims ledger
