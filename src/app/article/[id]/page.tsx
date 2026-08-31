@@ -360,12 +360,14 @@ export default async function ArticlePage({
             >
               Strategic interpretation
             </h2>
-            <p
-              className="font-body text-[0.98rem] leading-[1.8]"
+            <div
+              className="font-body text-[0.98rem] leading-[1.8] space-y-4"
               style={{ color: "var(--ink-mid)" }}
             >
-              {article.strategicInterpretation}
-            </p>
+              {article.strategicInterpretation.split(/\n\s*\n/).map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
           </section>
         )}
 
@@ -381,12 +383,14 @@ export default async function ArticlePage({
               >
                 Technical significance
               </h2>
-              <p
-                className="font-body text-[0.98rem] leading-[1.8]"
+              <div
+                className="font-body text-[0.98rem] leading-[1.8] space-y-4"
                 style={{ color: "var(--ink-mid)" }}
               >
-                {article.technicalSignificance}
-              </p>
+                {article.technicalSignificance.split(/\n\s*\n/).map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
             </section>
           )}
 

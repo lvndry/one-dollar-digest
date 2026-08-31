@@ -119,7 +119,7 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each stor
       "bias": "far-left | left | center | right | far-right"
     }
   ],
-  "strategicInterpretation": "1-3 sentences on incentives, leverage, likely counter-moves, economic impacts, or second-order effects. Clearly distinguish interpretation from verified fact."
+  "strategicInterpretation": "One or two short paragraphs on incentives, leverage, credible commitments, or second-order effects, grounded in the event's approved facts and relevant approved events from the day. Clearly distinguish interpretation from verified fact."
 }
 ```
 
@@ -130,7 +130,7 @@ Field rules:
 - **`primaryRegion`**: exactly one value — the dimension lens used to find this story.
 - **`bias`**: required; this is the primary source bias. Label the source reputation, not the article stance.
 - **`sources`**: non-empty array; each entry requires a defensible `bias` label.
-- **`strategicInterpretation`**: explain the strategic significance and game-theoretic meaning — incentives, leverage, credible commitments, signaling, coalition effects, bargaining power, likely counter-moves, or second-order consequences. Ground it in verified facts. Use "may", "could", or "signals" when interpreting motives or future moves. Do not mix interpretation into the core summary.
+- **`strategicInterpretation`**: use one or two short paragraphs to explain the strategic significance and game-theoretic meaning — incentives, leverage, credible commitments, signaling, coalition effects, bargaining power, likely counter-moves, or second-order consequences. Ground every factual statement in the event's approved-claims ledger and relevant approved events from the day. Use "may", "could", or "signals" when interpreting motives or future moves. Do not mix interpretation into the core summary.
 
 ---
 
