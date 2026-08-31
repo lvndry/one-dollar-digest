@@ -6,7 +6,7 @@
     "persona": "default",
     "llmProvider": "openrouter",
     "llmModel": "qwen/qwen3.7-flash",
-    "temperature": 0.4,
+    "temperature": 0.1,
     "tools": [
       "web_search",
       "http_request",
