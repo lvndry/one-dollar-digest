@@ -58,9 +58,24 @@ const categoryFromOutputFile = Object.entries({
   new RegExp(`(?:^|/)${prefix}-(?:DIGEST_)?\\d{4}-\\d{2}-\\d{2}\\.json$`).test(filePath),
 )?.[1];
 
-if (categoryFromOutputFile) {
-  parsed = parsed.map((article) => ({ ...article, category: categoryFromOutputFile }));
-}
+parsed = parsed.map((article) => {
+  const keyFacts = Array.isArray(article.keyFacts)
+    ? article.keyFacts.filter((fact): fact is string => typeof fact === "string")
+    : [];
+  const summary =
+    article.summary ??
+    article.coreClaimOneSentence ??
+    (keyFacts.length > 0 ? keyFacts.join(" ") : article.title);
+
+  return {
+    ...article,
+    // Some consolidation models return the research ledger's
+    // coreClaimOneSentence/keyFacts shape instead of the shared `summary`
+    // field. Normalize that equivalent representation before validation.
+    summary,
+    ...(categoryFromOutputFile ? { category: categoryFromOutputFile } : {}),
+  };
+});
 
 const validation = ArticleArraySchema.safeParse(parsed);
 if (!validation.success) {
