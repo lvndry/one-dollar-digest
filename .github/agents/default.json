@@ -5,7 +5,7 @@
   "config": {
     "persona": "default",
     "llmProvider": "openrouter",
-    "llmModel": "deepseek/deepseek-v4-flash-0731",
+    "llmModel": "qwen/qwen3.7-flash",
     "temperature": 0.1,
     "tools": [
       "web_search",
