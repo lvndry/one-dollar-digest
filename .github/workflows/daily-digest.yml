@@ -69,7 +69,10 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Jazz
-        run: npm install -g jazz-ai
+        # 0.15.17 can end a workflow after its planning turn without writing
+        # the required output file. Pin the last release verified to complete
+        # and write digests until that regression is resolved upstream.
+        run: npm install -g jazz-ai@0.15.16
 
       - name: Determine digest date
         run: |
@@ -109,7 +112,9 @@ jobs:
             fi
             echo "::endgroup::"
             echo "::warning::tech-news attempt ${attempt} failed (jazz error or missing output file)"
-            [ "$attempt" -lt "$ATTEMPTS" ] && sleep 30
+            if [ "$attempt" -lt "$ATTEMPTS" ]; then
+              sleep 30
+            fi
           done
           echo "::error::tech-news workflow failed after ${ATTEMPTS} attempts"
           exit 1
@@ -206,7 +211,8 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Jazz
-        run: npm install -g jazz-ai
+        # Keep all category jobs on the same known-good Jazz release.
+        run: npm install -g jazz-ai@0.15.16
 
       - name: Determine digest date
         run: |
@@ -246,7 +252,9 @@ jobs:
             fi
             echo "::endgroup::"
             echo "::warning::political-news attempt ${attempt} failed (jazz error or missing output file)"
-            [ "$attempt" -lt "$ATTEMPTS" ] && sleep 30
+            if [ "$attempt" -lt "$ATTEMPTS" ]; then
+              sleep 30
+            fi
           done
           echo "::error::political-news workflow failed after ${ATTEMPTS} attempts"
           exit 1
@@ -343,7 +351,8 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Jazz
-        run: npm install -g jazz-ai
+        # Keep all category jobs on the same known-good Jazz release.
+        run: npm install -g jazz-ai@0.15.16
 
       - name: Determine digest date
         run: |
@@ -383,7 +392,9 @@ jobs:
             fi
             echo "::endgroup::"
             echo "::warning::finance-news attempt ${attempt} failed (jazz error or missing output file)"
-            [ "$attempt" -lt "$ATTEMPTS" ] && sleep 30
+            if [ "$attempt" -lt "$ATTEMPTS" ]; then
+              sleep 30
+            fi
           done
           echo "::error::finance-news workflow failed after ${ATTEMPTS} attempts"
           exit 1
