@@ -104,6 +104,8 @@ Write the full JSON array to `output/tech-news-DIGEST_DATE.json`. Each story mus
 
 Field rules:
 
+- **`category`**: required on every object; exactly `"tech"`.
+- **`publishedAt`**: required on every object; `YYYY-MM-DD`, read from the story source (never inferred from the digest date).
 - **`subcategory`**: exactly one primary editorial bucket from the dimension list.
 - **`sources`**: non-empty array. Include at least one primary source with canonical `url`;
 - **`tags`**: non-empty array; max 4. Use the coverage-dimension names the story also belongs to. Do not repeat the subcategory.

@@ -260,6 +260,13 @@ Example: `output/tech-news-2026-08-29.json`. CI still accepts the legacy `output
 
 Write only a valid JSON array to the file.
 
+`category` and `publishedAt` are mandatory on **every** final object, even when
+the category-specific `WORKFLOW.md` example does not repeat them. Set
+`category` to the workflow's exact value (`tech`, `politics`, or `finance`).
+Set `publishedAt` only to the `YYYY-MM-DD` date read from that story's source;
+never infer it from `DIGEST_DATE`, omit it, or use a prose date. Before writing,
+run `jq -e 'all(.[]; (.category | IN("tech", "politics", "finance")) and (.publishedAt | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")))' <output-file>`.
+
 ### Summary writing
 
 The `summary` is the factual editorial payload. Adapt depth to story type (research paper, product launch, security incident, funding, policy, executive move, geopolitical decision):
@@ -278,7 +285,7 @@ The category-specific analysis is the strategic payload. It may be up to **two s
 
 After merging, scoring, and claim approval, call `spawn_subagent` with a focused **consolidation editor** task. Give it the selected events and their approved-claims ledgers. Its job is to synthesize the final factual summaries and category-specific strategic analysis, using the entire selected digest when that context is useful. It does not research or add factual claims.
 
-Pass `resultName: "digest articles"` and a `resultSchema` whose root object has one required `articles` property: the exact category-specific article array schema. The child returns `{ "articles": [...] }` as its validated structured result. The coordinator writes `structuredResult.articles` to the output file and verifies with `jq . <output-file> >/dev/null` (must exit 0). Recover the array from the structured result, not from the child's text summary.
+Pass `resultName: "digest articles"` and a `resultSchema` whose root object has one required `articles` property: the exact category-specific article array schema. The schema must require `title`, `summary`, `sources`, `category`, and `publishedAt` on every article; constrain `category` to the current workflow's literal value and `publishedAt` to `^\\d{4}-\\d{2}-\\d{2}$`. The child returns `{ "articles": [...] }` as its validated structured result. The coordinator writes `structuredResult.articles` to the output file and verifies both `jq . <output-file> >/dev/null` and the required category/date check above. Recover the array from the structured result, not from the child's text summary.
 
 This is the one allowed extra round-trip and it counts against the time budget. A fresh, bounded editor improves synthesis without reopening research.
 
@@ -295,6 +302,7 @@ If you edit the output file while working through this list, restart from the to
 - [ ] Every candidate had at most one deepen pass, spent on the surrounding story rather than more headlines
 - [ ] All candidates covering the same event were merged into one entry
 - [ ] Every final entry's `publishedAt` was read from a source (byline, timestamp, or dated URL path), never guessed or left to default to `DIGEST_DATE`
+- [ ] Every final entry has the exact workflow `category` and a `publishedAt` matching `YYYY-MM-DD`
 - [ ] `SELECT_FROM_DATE <= publishedAt <= DIGEST_DATE` for every final entry
 - [ ] No two final entries share a normalized source URL
 - [ ] Every final `sources[].url` is the URL you actually fetched, normalized — canonicalization and final link validity are the pipeline's job, not this pass's

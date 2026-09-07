@@ -125,6 +125,8 @@ Write the full JSON array to `output/political-news-DIGEST_DATE.json`. Each stor
 
 Field rules:
 
+- **`category`**: required on every object; exactly `"politics"`.
+- **`publishedAt`**: required on every object; `YYYY-MM-DD`, read from the story source (never inferred from the digest date).
 - **`tags`**: non-empty array; exact strings from the tag list; usually 1–4.
 - **`regions`**: non-empty array; exact strings from the dimension list; tag every region materially involved.
 - **`primaryRegion`**: exactly one value — the dimension lens used to find this story.

@@ -46,6 +46,22 @@ try {
   }
 }
 
+// The workflow selected the digest category before Jazz generated this file, so
+// its filename is the authoritative category. Keep the model responsible for
+// article content, but do not let a missing or paraphrased category make an
+// otherwise valid category run fail ingestion.
+const categoryFromOutputFile = Object.entries({
+  "tech-news": "tech",
+  "political-news": "politics",
+  "finance-news": "finance",
+} as const).find(([prefix]) =>
+  new RegExp(`(?:^|/)${prefix}-(?:DIGEST_)?\\d{4}-\\d{2}-\\d{2}\\.json$`).test(filePath),
+)?.[1];
+
+if (categoryFromOutputFile) {
+  parsed = parsed.map((article) => ({ ...article, category: categoryFromOutputFile }));
+}
+
 const validation = ArticleArraySchema.safeParse(parsed);
 if (!validation.success) {
   const errors = validation.error.issues.map(
