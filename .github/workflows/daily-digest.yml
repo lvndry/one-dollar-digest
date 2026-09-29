@@ -72,7 +72,7 @@ jobs:
         # 0.15.17 can end a workflow after its planning turn without writing
         # the required output file. Pin the last release verified to complete
         # and write digests until that regression is resolved upstream.
-        run: npm install -g jazz-ai@0.15.16
+        run: npm install -g jazz-ai@latest
 
       - name: Determine digest date
         run: |
@@ -212,7 +212,7 @@ jobs:
 
       - name: Install Jazz
         # Keep all category jobs on the same known-good Jazz release.
-        run: npm install -g jazz-ai@0.15.16
+        run: npm install -g jazz-ai@latest
 
       - name: Determine digest date
         run: |
@@ -352,7 +352,7 @@ jobs:
 
       - name: Install Jazz
         # Keep all category jobs on the same known-good Jazz release.
-        run: npm install -g jazz-ai@0.15.16
+        run: npm install -g jazz-ai@latest
 
       - name: Determine digest date
         run: |

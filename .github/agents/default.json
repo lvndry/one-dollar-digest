@@ -4,9 +4,11 @@
   "description": "One Dollar Digest research agent",
   "config": {
     "persona": "default",
-    "llmProvider": "openrouter",
-    "llmModel": "deepseek/deepseek-v4-flash-0731",
-    "temperature": 0.1,
+    "llm": {
+      "provider": "openrouter",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "temperature": 0.1
+    },
     "tools": [
       "web_search",
       "http_request",
