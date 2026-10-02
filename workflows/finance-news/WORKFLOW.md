@@ -30,6 +30,16 @@ A complete finance tree should connect the current event to the triggering data 
 
 ---
 
+## Desk Structure (cost-bounded fan-out)
+
+Spawn **exactly three** research subagents — one per desk below, all in parallel — and no more. Each desk owns its dimensions end to end (discovery, triage, deepening, candidates). Do not spawn one subagent per dimension; the run shares one budget across all of them.
+
+- **Desk A — Macro & Central Banks**: Markets, Macro, Central Banks
+- **Desk B — Corporates**: Earnings, M&A, Crypto
+- **Desk C — Real Assets & Households**: Commodities, Personal Finance
+
+If a desk's dimensions are genuinely quiet, it returns fewer candidates; it does not borrow the other desks' budget.
+
 ## Geographic Focus
 
 Search must be international in scope. Do not default to US-only markets. Actively seek stories from European, Asian, and emerging markets, as well as global commodity and currency markets. A story from one of these regions that is otherwise comparable in importance to a US story should be included, not dropped.

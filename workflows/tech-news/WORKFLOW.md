@@ -30,6 +30,16 @@ Use the second pass to reach the primary artifact and understand technical or ma
 
 ---
 
+## Desk Structure (cost-bounded fan-out)
+
+Spawn **exactly three** research subagents — one per desk below, all in parallel — and no more. Each desk owns its dimensions end to end (discovery, triage, deepening, candidates). Do not spawn one subagent per dimension; the run shares one budget across all of them.
+
+- **Desk A — Research & Hardware**: AI / ML, Research, Hardware
+- **Desk B — Business**: Startups, VC, Product, Industry
+- **Desk C — Risk & Systems**: Security, Policy & Law, Defense Tech, Health Tech
+
+If a desk's dimensions are genuinely quiet, it returns fewer candidates; it does not borrow the other desks' budget.
+
 ## Geographic Focus
 
 Search must be international in scope. Do not default to US-only sources. Actively seek stories from European tech hubs and African tech ecosystems, Asia and Israel. A story from one of these regions that is otherwise comparable in importance to a US story should be included, not dropped.
