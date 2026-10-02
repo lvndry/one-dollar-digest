@@ -6,8 +6,9 @@
     "persona": "default",
     "llm": {
       "provider": "openrouter",
-      "model": "deepseek/deepseek-v4-flash-0731",
-      "temperature": 0.1
+      "model": "deepseek/deepseek-v4.1-flash",
+      "temperature": 0.1,
+      "maxOutputTokens": 16000
     },
     "tools": [
       "web_search",
