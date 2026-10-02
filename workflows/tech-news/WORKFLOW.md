@@ -18,6 +18,18 @@ Call `load_skill` with `skill_name: "daily-digest-research"` and follow it as ma
 
 ---
 
+## Research Depth
+
+Use these settings for every dimension unless a desk has a stronger reason to stop earlier:
+
+- `maxDeepeningPasses`: **2**
+- `minNewFactsPerPass`: **1** sourced knowledge-tree node
+- `importanceDeltaToContinue`: **0.10**
+
+Use the second pass to reach the primary artifact and understand technical or market consequences. Do not spend it collecting more announcement rewrites. Security incidents, policy decisions, defense technology, and major industry shifts may use a third pass when the knowledge tree still has a material unresolved branch.
+
+---
+
 ## Geographic Focus
 
 Search must be international in scope. Do not default to US-only sources. Actively seek stories from European tech hubs and African tech ecosystems, Asia and Israel. A story from one of these regions that is otherwise comparable in importance to a US story should be included, not dropped.
@@ -126,6 +138,8 @@ Field rules:
 ## Quality Checklist (verify before finishing)
 
 - [ ] `daily-digest-research` skill loaded and followed
+- [ ] Jev triage ran (or its failure was recorded and research continued)
+- [ ] Every final story has a sourced knowledge tree and a completed bounded deepening loop
 - [ ] All domains were covered in the landscape discovery sweep
 - [ ] At least eight domains are represented in the final digest — dedicated search run for any empty domain
 - [ ] Geographic coverage includes at least one story from Europe or Africa (not exclusively US)

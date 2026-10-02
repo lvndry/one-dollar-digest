@@ -121,6 +121,7 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
@@ -261,6 +262,7 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"
@@ -401,6 +403,7 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
           JAZZ_DISABLE_CATCH_UP: "1"

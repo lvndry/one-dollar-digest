@@ -18,6 +18,18 @@ Call `load_skill` with `skill_name: "daily-digest-research"` and follow it as ma
 
 ---
 
+## Research Depth
+
+Political events sit inside institutional, legal, electoral, diplomatic, and bargaining chains. Use these settings for every region unless a desk has a stronger reason to stop earlier:
+
+- `maxDeepeningPasses`: **3**
+- `minNewFactsPerPass`: **1** sourced knowledge-tree node
+- `importanceDeltaToContinue`: **0.10**
+
+A complete political tree should connect the current event to the prior decision or conflict that produced it, the institutions and coalitions with power to respond, the competing account when sources disagree, and the most defensible immediate consequence. Cross-border stories must link the involved regional desks rather than duplicating isolated summaries.
+
+---
+
 ## Coverage Dimensions
 
 The eight regions below are desks, not membership tests. Use them to fan out search. The phrases after the em dash are starting points — if a political story is happening in that part of the world, or that power is a material actor in it, it belongs on the desk. A story that crosses borders gets every region that is in it; `primaryRegion` is only which desk found it.
@@ -149,6 +161,8 @@ Field rules:
 ## Quality Checklist (verify before finishing)
 
 - [ ] `daily-digest-research` skill loaded and followed
+- [ ] Jev triage ran (or its failure was recorded and research continued)
+- [ ] Every final story has a sourced knowledge tree and a completed bounded deepening loop
 - [ ] All eight regions were covered in the landscape discovery sweep
 - [ ] A dedicated France query and a dedicated EU-institutional query ran during landscape discovery
 - [ ] At least two French-specific and three European stories (France counted separately) are in the final digest, or a documented fallback query was run for each missing slot before accepting a quiet day

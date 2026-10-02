@@ -18,6 +18,18 @@ Call `load_skill` with `skill_name: "daily-digest-research"` and follow it as ma
 
 ---
 
+## Research Depth
+
+Finance events are rarely isolated from policy, positioning, liquidity, and cross-market reactions. Use these settings for every dimension unless a desk has a stronger reason to stop earlier:
+
+- `maxDeepeningPasses`: **3**
+- `minNewFactsPerPass`: **1** sourced knowledge-tree node
+- `importanceDeltaToContinue`: **0.10**
+
+A complete finance tree should connect the current event to the triggering data or decision, the relevant institution or market structure, at least one observed response, and the most defensible immediate consequence. For central-bank, macro, systemic-risk, and major commodity stories, actively check cross-market transmission rather than treating the first price move as the whole story.
+
+---
+
 ## Geographic Focus
 
 Search must be international in scope. Do not default to US-only markets. Actively seek stories from European, Asian, and emerging markets, as well as global commodity and currency markets. A story from one of these regions that is otherwise comparable in importance to a US story should be included, not dropped.
@@ -114,6 +126,8 @@ Field rules:
 ## Quality Checklist (verify before finishing)
 
 - [ ] `daily-digest-research` skill loaded and followed
+- [ ] Jev triage ran (or its failure was recorded and research continued)
+- [ ] Every final story has a sourced knowledge tree and a completed bounded deepening loop
 - [ ] All domains were covered in the landscape discovery sweep
 - [ ] At least six domains are represented in the final digest — dedicated search run for any empty domain
 - [ ] Geographic coverage includes at least one story outside the US
