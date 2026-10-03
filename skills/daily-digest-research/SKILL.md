@@ -219,10 +219,16 @@ Dates in the query text are a hint. Dates in the tool arguments are the filter.
 Build a pool of roughly 12–20 plausible leads per desk before deep reading (allocate across the desk's dimensions; a quiet dimension may contribute fewer). Search results are leads, not evidence. Send their ids, titles, snippets, source names, source types, and visible dates to the repository's Jev helper in one batch:
 
 ```sh
-[ -n "$TYPESAFE_API_KEY" ] && cat /tmp/<desk>-leads.json | bun scripts/jev-research.ts
+cat /tmp/<desk>-leads.json | bun scripts/jev-research.ts
 ```
 
-If `TYPESAFE_API_KEY` is empty in the shell, Jev cannot run: record that in the research log and continue with researcher judgment — do not burn retries on it.
+`jev-research.ts` reads `TYPESAFE_API_KEY` from the environment; in CI the runner injects it from `jazz.config.json` (`llm.typesafe.api_key`) — do not conclude it is missing without checking. Before any other Jev call, probe once:
+
+```sh
+printf '{}' | bun scripts/jev-research.ts 2>&1 | head -5
+```
+
+If the probe throws `TYPESAFE_API_KEY is required`, Jev cannot run: record that in the research log and continue with researcher judgment — do not burn retries on it.
 
 The JSON request must use `mode: "triage"`, the desk's dimensions and digest date, and a `leads` array. The helper uses:
 

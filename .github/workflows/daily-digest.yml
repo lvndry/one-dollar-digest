@@ -102,6 +102,11 @@ jobs:
             echo "typesafe-key-length=${#TYPESAFE_API_KEY}"
             echo "::group::tech-news attempt ${attempt}/${ATTEMPTS}"
             rm -f output/tech-news-*.json
+            if [ -n "$TYPESAFE_API_KEY" ]; then
+              jq --arg typesafe "$TYPESAFE_API_KEY" '.llm.typesafe.api_key = $typesafe' \
+                jazz.config.json > jazz.config.tmp.json
+              mv jazz.config.tmp.json jazz.config.json
+            fi
             if jazz --config ./jazz.config.json --output raw workflow run tech-news --max-cost-usd 0.10 --max-tokens 800000 --max-iterations 30 --max-duration-ms 1500000 --auto-approve \
               | tee /tmp/jazz-output.txt; then
               OUTPUT_FILE=$(find output -maxdepth 1 -name 'tech-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
@@ -245,6 +250,11 @@ jobs:
             echo "typesafe-key-length=${#TYPESAFE_API_KEY}"
             echo "::group::political-news attempt ${attempt}/${ATTEMPTS}"
             rm -f output/political-news-*.json
+            if [ -n "$TYPESAFE_API_KEY" ]; then
+              jq --arg typesafe "$TYPESAFE_API_KEY" '.llm.typesafe.api_key = $typesafe' \
+                jazz.config.json > jazz.config.tmp.json
+              mv jazz.config.tmp.json jazz.config.json
+            fi
             if jazz --config ./jazz.config.json --output raw workflow run political-news --max-cost-usd 0.10 --max-tokens 800000 --max-iterations 30 --max-duration-ms 1500000 --auto-approve \
               | tee /tmp/jazz-output.txt; then
               OUTPUT_FILE=$(find output -maxdepth 1 -name 'political-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
@@ -388,6 +398,11 @@ jobs:
             echo "typesafe-key-length=${#TYPESAFE_API_KEY}"
             echo "::group::finance-news attempt ${attempt}/${ATTEMPTS}"
             rm -f output/finance-news-*.json
+            if [ -n "$TYPESAFE_API_KEY" ]; then
+              jq --arg typesafe "$TYPESAFE_API_KEY" '.llm.typesafe.api_key = $typesafe' \
+                jazz.config.json > jazz.config.tmp.json
+              mv jazz.config.tmp.json jazz.config.json
+            fi
             if jazz --config ./jazz.config.json --output raw workflow run finance-news --max-cost-usd 0.10 --max-tokens 800000 --max-iterations 30 --max-duration-ms 1500000 --auto-approve \
               | tee /tmp/jazz-output.txt; then
               OUTPUT_FILE=$(find output -maxdepth 1 -name 'finance-news-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
