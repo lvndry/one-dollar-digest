@@ -219,8 +219,10 @@ Dates in the query text are a hint. Dates in the tool arguments are the filter.
 Build a pool of roughly 12–20 plausible leads per desk before deep reading (allocate across the desk's dimensions; a quiet dimension may contribute fewer). Search results are leads, not evidence. Send their ids, titles, snippets, source names, source types, and visible dates to the repository's Jev helper in one batch:
 
 ```sh
-cat /tmp/<desk>-leads.json | bun scripts/jev-research.ts
+[ -n "$TYPESAFE_API_KEY" ] && cat /tmp/<desk>-leads.json | bun scripts/jev-research.ts
 ```
+
+If `TYPESAFE_API_KEY` is empty in the shell, Jev cannot run: record that in the research log and continue with researcher judgment — do not burn retries on it.
 
 The JSON request must use `mode: "triage"`, the desk's dimensions and digest date, and a `leads` array. The helper uses:
 
@@ -234,7 +236,7 @@ If Jev is unavailable, record the failure in the research log and continue with 
 
 ### 2b — Fetch, read, and seed the knowledge tree
 
-Treat a search result URL as a **lead**, not as a source URL. For every retained result, fetch the full article with `web_fetch` or `http_request`, following redirects, so you can read and extract from it. Record the URL you fetched as both `requestedUrl` and `url`, and set `sourceStatus` to whatever you honestly observed (`2xx`, `redirected-to-2xx`, `unverified`, or `failed`).
+Treat a search result URL as a **lead**, not as a source URL. For every retained result, fetch the article with `web_fetch` (cap `max_length` at ~20000 characters — the first 20k contain the lede, the numbers, and the attribution; the tail is worth less than the context it costs) or `http_request`, following redirects, so you can read and extract from it. Fetch at most 8–10 articles per desk; prioritize primary sources and `keep`-routed leads. Record the URL you fetched as both `requestedUrl` and `url`, and set `sourceStatus` to whatever you honestly observed (`2xx`, `redirected-to-2xx`, `unverified`, or `failed`).
 
 Final link validity is not your call to make: the pipeline resolves every source URL through its own deterministic redirect-follower before anything is stored, and that resolver — not your read of the fetch — decides what survives. Do not drop a candidate merely because a fetch looked uncertain; record it honestly. Skip only results that are clearly not readable articles or primary documents.
 
