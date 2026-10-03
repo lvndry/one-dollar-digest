@@ -222,7 +222,7 @@ Build a pool of roughly 12–20 plausible leads per desk before deep reading (al
 cat /tmp/<desk>-leads.json | bun scripts/jev-research.ts
 ```
 
-`jev-research.ts` reads `TYPESAFE_API_KEY` from the environment; in CI the runner injects it from `jazz.config.json` (`llm.typesafe.api_key`) — do not conclude it is missing without checking. Before any other Jev call, probe once:
+`jev-research.ts` reads `TYPESAFE_API_KEY` from its own shell environment. Jazz strips secret-named vars (`*_KEY`) from `execute_command` child shells unless the agent config's `envAllowlist` names them, so the variable can be present to the runner yet empty here — do not conclude it is missing without checking. Before any other Jev call, probe once:
 
 ```sh
 printf '{}' | bun scripts/jev-research.ts 2>&1 | head -5

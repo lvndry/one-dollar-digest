@@ -10,6 +10,7 @@
       "temperature": 0.1,
       "maxOutputTokens": 16000
     },
+    "envAllowlist": ["TYPESAFE_API_KEY"],
     "tools": [
       "web_search",
       "http_request",
