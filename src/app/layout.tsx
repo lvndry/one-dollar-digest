@@ -38,7 +38,7 @@ export function generateMetadata(): Metadata {
       template: "%s | The One Dollar Digest",
     },
     description:
-      "AI-curated daily news digest. Technology, politics, and finance, clearly sourced, for $1/month.",
+      "Quality-curated daily news digest. Technology, politics, and finance, clearly sourced, for $1/month.",
     metadataBase: new URL(
       process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.onedollardigest.com",
     ),
