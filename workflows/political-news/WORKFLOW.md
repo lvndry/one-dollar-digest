@@ -30,6 +30,16 @@ A complete political tree should connect the current event to the prior decision
 
 ---
 
+## Desk Structure (cost-bounded fan-out)
+
+Spawn **exactly three** research subagents — one per desk below, all in parallel — and no more. Each desk owns its regions end to end (discovery, triage, deepening, candidates). Do not spawn one subagent per region; the run shares one budget across all of them. The French & European Emphasis rules still apply inside Desk A.
+
+- **Desk A — US & Europe**: US, Europe (including the dedicated France and EU-institutional queries)
+- **Desk B — Asia & Global South**: China, Asia, BRICS
+- **Desk C — MENA, Africa & Latin America**: Middle East, Africa, South America
+
+Cross-border stories get every materially involved region tagged; `primaryRegion` stays the desk that found them.
+
 ## Coverage Dimensions
 
 The eight regions below are desks, not membership tests. Use them to fan out search. The phrases after the em dash are starting points — if a political story is happening in that part of the world, or that power is a material actor in it, it belongs on the desk. A story that crosses borders gets every region that is in it; `primaryRegion` is only which desk found it.

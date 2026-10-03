@@ -16,12 +16,12 @@ Success is a file at `output/<workflow-name>-<DIGEST_DATE>.json` that `jq` accep
 Coverage is a set of independent research problems. The category `WORKFLOW.md` names the dimensions; this skill owns how to work them.
 
 1. **Orient** — lock the date window so discovery is wide and selection is tight.
-2. **Fan out** — hand each dimension to one self-contained investigator that discovers a broad lead pool, uses Jev only to prioritize semantic research value, and fetches the strongest and uncertain leads.
+2. **Fan out** — hand each _desk_ from the category's `Desk Structure` section to one self-contained investigator. A desk owns its assigned dimensions or regions end to end. Never spawn one subagent per dimension: every subagent restarts the full skill context, and the whole run shares one cost budget.
 3. **Deepen iteratively** — grow a sourced knowledge tree around each material event: causes, prior decisions, institutions, responses, consequences, contradictions, and related events. Stop on convergence or the category's pass cap.
 4. **Compose** — merge overlapping events, keep only what the date and score gates allow, and build an approved-claims ledger before anyone writes copy.
 5. **Edit** — a fresh consolidation pass turns those ledgers into the final articles.
 
-The coordinator is the editor-in-chief: it plans the assignments, waits for every desk, then merges and serializes. Each subagent is a full investigator for its beat — discovery through candidate payload — so the fan-out actually buys parallelism instead of a queue of half-finished notes.
+The coordinator is the editor-in-chief: it plans the desk assignments, waits for every desk, then merges and serializes. Each subagent is a full investigator for its beat — discovery through candidate payload — so the fan-out actually buys parallelism instead of a queue of half-finished notes.
 
 Cost and time are hard-capped by the caller (Jazz `--timeout` + `--json` costUSD gate, and a GitHub job `timeout-minutes`). Spend the budget in parallel, but reserve enough for bounded deepening. Jev is a routing aid, not an evidence source: it may rank leads and identify semantic gaps, but every fact still comes from fetched sources and every uncertain Jev result remains eligible for researcher review.
 
@@ -197,9 +197,9 @@ Discovery searches belong on the desks, so each dimension is researched against 
 
 ---
 
-## Phase 2 — Run one researcher per dimension
+## Phase 2 — Run one researcher per desk
 
-Spawn **one subagent per dimension**, all in parallel. Each follows this sequence and returns a JSON array of candidates.
+Spawn **one subagent per desk** named in the category's `Desk Structure`, all in parallel — no more, no fewer. Each desk covers its assigned dimensions or regions through this sequence and returns a JSON array of candidates covering all of them.
 
 ### 2a — Discover broadly, then use Jev to prioritize
 
@@ -216,13 +216,21 @@ Run 2–3 broad discovery searches for the dimension, then 3–5 targeted querie
 
 Dates in the query text are a hint. Dates in the tool arguments are the filter.
 
-Build a pool of roughly 12–20 plausible leads per dimension before deep reading. Search results are leads, not evidence. Send their ids, titles, snippets, source names, source types, and visible dates to the repository's Jev helper in one batch:
+Build a pool of roughly 12–20 plausible leads per desk before deep reading (allocate across the desk's dimensions; a quiet dimension may contribute fewer). Search results are leads, not evidence. Send their ids, titles, snippets, source names, source types, and visible dates to the repository's Jev helper in one batch:
 
 ```sh
-cat /tmp/<dimension>-leads.json | bun scripts/jev-research.ts
+cat /tmp/<desk>-leads.json | bun scripts/jev-research.ts
 ```
 
-The JSON request must use `mode: "triage"`, the current dimension and digest date, and a `leads` array. The helper uses:
+`jev-research.ts` reads `TYPESAFE_API_KEY` from its own shell environment. Jazz strips secret-named vars (`*_KEY`) from `execute_command` child shells unless the agent config's `envAllowlist` names them, so the variable can be present to the runner yet empty here — do not conclude it is missing without checking. Before any other Jev call, probe once:
+
+```sh
+printf '{}' | bun scripts/jev-research.ts 2>&1 | head -5
+```
+
+If the probe throws `TYPESAFE_API_KEY is required`, Jev cannot run: record that in the research log and continue with researcher judgment — do not burn retries on it.
+
+The JSON request must use `mode: "triage"`, the desk's dimensions and digest date, and a `leads` array. The helper uses:
 
 - a **Score** for direct research relevance,
 - a **Noul** for potential to reveal causes, prior decisions, institutions, or consequences,
@@ -234,7 +242,7 @@ If Jev is unavailable, record the failure in the research log and continue with 
 
 ### 2b — Fetch, read, and seed the knowledge tree
 
-Treat a search result URL as a **lead**, not as a source URL. For every retained result, fetch the full article with `web_fetch` or `http_request`, following redirects, so you can read and extract from it. Record the URL you fetched as both `requestedUrl` and `url`, and set `sourceStatus` to whatever you honestly observed (`2xx`, `redirected-to-2xx`, `unverified`, or `failed`).
+Treat a search result URL as a **lead**, not as a source URL. For every retained result, fetch the article with `web_fetch` (cap `max_length` at ~20000 characters — the first 20k contain the lede, the numbers, and the attribution; the tail is worth less than the context it costs) or `http_request`, following redirects, so you can read and extract from it. Fetch at most 8–10 articles per desk; prioritize primary sources and `keep`-routed leads. Record the URL you fetched as both `requestedUrl` and `url`, and set `sourceStatus` to whatever you honestly observed (`2xx`, `redirected-to-2xx`, `unverified`, or `failed`).
 
 Final link validity is not your call to make: the pipeline resolves every source URL through its own deterministic redirect-follower before anything is stored, and that resolver — not your read of the fetch — decides what survives. Do not drop a candidate merely because a fetch looked uncertain; record it honestly. Skip only results that are clearly not readable articles or primary documents.
 
