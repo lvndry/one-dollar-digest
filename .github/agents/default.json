@@ -11,7 +11,7 @@
       "maxOutputTokens": 16000
     },
     "tools": [
-      "web_search",
+      "treg_search",
       "http_request",
       "read_file",
       "write_file",
@@ -24,6 +24,52 @@
       "spawn_subagent",
       "todo",
       "web_fetch"
+    ],
+    "deniedTools": ["web_search"],
+    "envAllowlist": ["TREG_TOKEN"],
+    "customTools": [
+      {
+        "name": "treg_search",
+        "description": "Search the live web through treg. Returns leads (title, url, snippet, publishedAt when known, sourceName) deduped by url, with dated leads before fromDate removed. Use sourceType news for current events and web for background or primary sources. Results are leads, not evidence: fetch each one before citing it.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "The research goal for this search."
+            },
+            "searchQueries": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 5,
+              "description": "Up to five short keyword phrases, each searched separately. Falls back to query when empty."
+            },
+            "sourceType": {
+              "type": "string",
+              "enum": ["news", "web"],
+              "description": "news (default) for recent articles, web for the open web."
+            },
+            "fromDate": {
+              "type": "string",
+              "description": "YYYY-MM-DD. Leads dated before this are dropped; undated leads are kept."
+            },
+            "maxResults": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "Results per phrase, default 10."
+            }
+          },
+          "required": ["query"]
+        },
+        "handler": {
+          "type": "command",
+          "command": ["bun", "scripts/treg-search.ts"],
+          "timeoutMs": 120000
+        }
+      }
     ]
   }
 }

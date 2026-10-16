@@ -51,7 +51,7 @@ echo ${TARGET_DATE:-$(date -u +%Y-%m-%d)}
 
 Store the output as `DIGEST_DATE`. Compute two bounds:
 
-- `SEARCH_FROM_DATE` = two calendar days before `DIGEST_DATE` (`T-2`). Pass this as `fromDate` on every `web_search` so discovery lags do not hide a story.
+- `SEARCH_FROM_DATE` = two calendar days before `DIGEST_DATE` (`T-2`). Pass this as `fromDate` on every `treg_search` so discovery lags do not hide a story.
 - `SELECT_FROM_DATE` = one calendar day before `DIGEST_DATE` (`T-1`). This is the hard lower bound for the final output.
 
 Any article whose `publishedAt` is before `SELECT_FROM_DATE` leaves the digest — regardless of score, significance, or how thin a dimension looks. The wider search window is for finding, not for selecting.
@@ -203,18 +203,18 @@ Spawn **one subagent per dimension**, all in parallel. Each follows this sequenc
 
 ### 2a — Discover broadly, then use Jev to prioritize
 
-Run 2–3 broad discovery searches for the dimension, then 3–5 targeted queries built from what surfaced. Every `web_search` call passes dates as top-level tool arguments:
+Search with `treg_search`. Run 2–3 broad discovery searches for the dimension, then 3–5 targeted queries built from what surfaced. Each call takes up to five short keyword phrases in `searchQueries`, searched in parallel, so batch related phrases into one call:
 
 ```json
 {
   "query": "Describe the research goal and mention DIGEST_DATE",
-  "searchQueries": ["concise keyword phrase"],
-  "fromDate": "SEARCH_FROM_DATE",
-  "toDate": "DIGEST_DATE"
+  "searchQueries": ["concise keyword phrase", "another angle"],
+  "sourceType": "news",
+  "fromDate": "SEARCH_FROM_DATE"
 }
 ```
 
-Dates in the query text are a hint. Dates in the tool arguments are the filter.
+Use `sourceType: "news"` for discovery. Use `sourceType: "web"` to find a primary source, paper, filing, or official statement behind a story. `fromDate` drops leads whose date is known to be older; undated leads stay, so verify the date when you fetch. Dates in the query text are only a hint.
 
 Build a pool of roughly 12–20 plausible leads per dimension before deep reading. Search results are leads, not evidence. Send their ids, titles, snippets, source names, source types, and visible dates to the repository's Jev helper in one batch:
 

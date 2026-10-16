@@ -84,12 +84,11 @@ jobs:
 
       - name: Configure Jazz API keys
         run: |
-          jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
-            '.web_search.brave.api_key = $brave | .llm.openrouter.api_key = $openrouter' \
+          jq --arg openrouter "$OPENROUTER_API_KEY" \
+            '.llm.openrouter.api_key = $openrouter' \
             jazz.config.json > jazz.config.tmp.json
           mv jazz.config.tmp.json jazz.config.json
         env:
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run tech-news workflow
@@ -121,7 +120,7 @@ jobs:
           exit 1
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          TREG_TOKEN: ${{ secrets.TREG_TOKEN }}
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
@@ -153,7 +152,7 @@ jobs:
 
           WEB_SEARCHES=0
           if [ -f /tmp/jazz-output.txt ]; then
-            WEB_SEARCHES=$(grep -c 'Executing tool: web_search' /tmp/jazz-output.txt || true)
+            WEB_SEARCHES=$(grep -c 'Executing tool: treg_search' /tmp/jazz-output.txt || true)
           fi
 
           INSERTED="n/a"
@@ -226,12 +225,11 @@ jobs:
 
       - name: Configure Jazz API keys
         run: |
-          jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
-            '.web_search.brave.api_key = $brave | .llm.openrouter.api_key = $openrouter' \
+          jq --arg openrouter "$OPENROUTER_API_KEY" \
+            '.llm.openrouter.api_key = $openrouter' \
             jazz.config.json > jazz.config.tmp.json
           mv jazz.config.tmp.json jazz.config.json
         env:
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run political-news workflow
@@ -263,7 +261,7 @@ jobs:
           exit 1
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          TREG_TOKEN: ${{ secrets.TREG_TOKEN }}
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
@@ -295,7 +293,7 @@ jobs:
 
           WEB_SEARCHES=0
           if [ -f /tmp/jazz-output.txt ]; then
-            WEB_SEARCHES=$(grep -c 'Executing tool: web_search' /tmp/jazz-output.txt || true)
+            WEB_SEARCHES=$(grep -c 'Executing tool: treg_search' /tmp/jazz-output.txt || true)
           fi
 
           INSERTED="n/a"
@@ -368,12 +366,11 @@ jobs:
 
       - name: Configure Jazz API keys
         run: |
-          jq --arg brave "$BRAVE_API_KEY" --arg openrouter "$OPENROUTER_API_KEY" \
-            '.web_search.brave.api_key = $brave | .llm.openrouter.api_key = $openrouter' \
+          jq --arg openrouter "$OPENROUTER_API_KEY" \
+            '.llm.openrouter.api_key = $openrouter' \
             jazz.config.json > jazz.config.tmp.json
           mv jazz.config.tmp.json jazz.config.json
         env:
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Run finance-news workflow
@@ -405,7 +402,7 @@ jobs:
           exit 1
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          TREG_TOKEN: ${{ secrets.TREG_TOKEN }}
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           TARGET_DATE: ${{ env.DATE }}
           CI: "true"
@@ -437,7 +434,7 @@ jobs:
 
           WEB_SEARCHES=0
           if [ -f /tmp/jazz-output.txt ]; then
-            WEB_SEARCHES=$(grep -c 'Executing tool: web_search' /tmp/jazz-output.txt || true)
+            WEB_SEARCHES=$(grep -c 'Executing tool: treg_search' /tmp/jazz-output.txt || true)
           fi
 
           INSERTED="n/a"
